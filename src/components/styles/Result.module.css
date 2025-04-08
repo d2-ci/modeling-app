@@ -1,0 +1,6 @@
+.buttonContainer {
+    display: flex;
+    justify-content: right;
+    gap: 1rem;
+    padding-block-start: 3rem;
+}
