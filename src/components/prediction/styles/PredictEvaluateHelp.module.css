@@ -1,0 +1,10 @@
+.helpContainer {
+    display: flex;
+    justify-content: right;
+    inline-size: 100%;
+    margin-block-start: 0.6rem;
+}
+
+.popover {
+    padding: 0.5rem;
+}
