@@ -3,10 +3,13 @@
         "plugins": [{ "name": "typescript-plugin-css-modules" }],
         "jsx": "react",
         "target": "es2021",
-        "module": "commonjs",
+        "module": "ESNext",
+        "moduleResolution": "node",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "skipLibCheck": true
-    }
+    },
+    "include": ["src/**/*.ts", "src/**/*.tsx"],
+    "exclude": ["node_modules", "build", "dist"]
 }
