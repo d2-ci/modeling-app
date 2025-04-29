@@ -1,12 +1,6 @@
-import { useEffect, useState } from 'react'
-import { useDataMutation, useDataQuery } from '@dhis2/app-runtime'
-import { CreateMutation } from '@dhis2/app-service-data/build/types/engine/types/Mutation'
+import { useDataMutation } from "@dhis2/app-runtime";
 
-export const REQUEST = (
-    data: any,
-    key: string,
-    method: 'update' | 'create'
-) => {
+export const REQUEST = (data: any, key: string, method: 'update' | 'create') => {
     return {
         resource: `dataStore/modeling/${key}`,
         type: method,
@@ -15,23 +9,18 @@ export const REQUEST = (
     }
 }
 
-const usePostDataStore = (
-    data: any,
-    key: string,
-    method: 'update' | 'create'
-) => {
-    const [mutate, { error, loading, called }] = useDataMutation(
-        REQUEST(data, key, method)
-    )
+const usePostDataStore = (data : any, key : string, method : 'update' | 'create') => {
+  
+  const [mutate, { error, loading, called }] = useDataMutation(REQUEST(data, key, method));
 
-    //await mutate();
+  //await mutate();
 
-    return {
-        error,
-        loading,
-        called,
-        mutate,
-    }
-}
+  return {
+    error,
+    loading,
+    called,
+    mutate
+  };
+};
 
-export default usePostDataStore
+export default usePostDataStore;

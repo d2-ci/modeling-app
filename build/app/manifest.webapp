@@ -4,7 +4,7 @@
   "short_name": "modeling-app",
   "name": "Modeling",
   "description": "",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "launch_path": "index.html",
   "default_locale": "en",
   "activities": {
@@ -15,7 +15,7 @@
   "icons": {
     "48": "dhis2-app-icon.png"
   },
-  "manifest_generated_at": "Tue Apr 08 2025 15:18:55 GMT+0000 (Coordinated Universal Time)",
+  "manifest_generated_at": "Tue Apr 29 2025 11:43:41 GMT+0000 (Coordinated Universal Time)",
   "display": "standalone",
   "theme_color": "#ffffff",
   "background_color": "#ffffff"

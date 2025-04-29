@@ -1,5 +1,7 @@
 import { useDataQuery } from '@dhis2/app-runtime'
-import { ModelFeatureDataElementMap } from '../interfaces/ModelFeatureDataElement'
+import {
+    DatasetLayer,
+} from '../features/new-dataset/interfaces/DataSetLayer'
 
 const ANALYTICS_QUERY = ({
     dataElements = [],
@@ -19,56 +21,43 @@ const ANALYTICS_QUERY = ({
     }
 }
 
-const convertDhis2AnlyticsToChap = (
-    data: [[string, string, string, string]],
-    dataElementId: string
-): any[] => {
-    return data
-        .filter((x) => x[0] === dataElementId)
-        .map((row) => {
-            return {
-                ou: row[1],
-                pe: row[2],
-                value: parseFloat(row[3]),
-            }
-        })
+interface AnalyticsRespone {
+    data: [[string, string, string, string]] | []
+    error: any
+    loading: boolean
+    metaData: { [key: string]: { name: string } }
 }
 
 const useAnalyticRequest = (
-    modelSpesificSelectedDataElements: ModelFeatureDataElementMap,
+    dataLayers: DatasetLayer[],
     periodes: any,
     orgUnit: any
-) => {
-    const modelSpesificSelectedDataElementsArray = Array.from(
-        modelSpesificSelectedDataElements
-    )
-
-    //filter out every DHIS2 dataElement ids
-    const dataElements = modelSpesificSelectedDataElementsArray.map(
-        ([key, value]) => value.selectedDataElementId
+): AnalyticsRespone => {
+    //filter out every DHIS2 dataElement
+    const dataElements = dataLayers.map(
+        (d: DatasetLayer) => d.dataSource
     ) as any
+
+    //if all data will be fetched from CHAP
+    if (dataElements.length === 0) {
+        return {
+            data: [],
+            metaData: {},
+            error: '',
+            loading: false,
+        }
+    }
 
     const { loading, error, data } = useDataQuery(
         ANALYTICS_QUERY({ dataElements, periodes, orgUnit })
-    )
+    ) as any;
 
     if (!loading && data && !error) {
         //divide the respons into the features (for instance population, diseases, etc)
-        const featureRequest = modelSpesificSelectedDataElementsArray.map(
-            ([key, value]) => {
-                return {
-                    featureId: key,
-                    dhis2Id: value.selectedDataElementId,
-                    data: convertDhis2AnlyticsToChap(
-                        (data?.request as any).rows,
-                        value.selectedDataElementId
-                    ),
-                }
-            }
-        )
 
         return {
-            data: featureRequest,
+            data: data?.request?.rows,
+            metaData: data?.request?.metaData?.items,
             error,
             loading,
         }
@@ -76,6 +65,7 @@ const useAnalyticRequest = (
 
     return {
         data,
+        metaData: {},
         error,
         loading,
     }

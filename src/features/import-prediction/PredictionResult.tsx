@@ -26,7 +26,7 @@ import { UncertaintyAreaChart } from '@dhis2-chap/chap-lib'
 import useFindDataItem from '../../hooks/useDataItem'
 
 interface PredictionResultProps {
-    prediction_unprocessed: PredictionRead
+    prediction_unprocessed: PredictionRead 
 }
 
 const PredictionResult = ({
@@ -256,7 +256,7 @@ const PredictionResult = ({
         <div className={styles.container}>
             <div className={styles.innerContainer}>
                 {orgUnitLoading && <p>Loading metadata from DHIS2.. </p>}
-                <h1>Import: {prediction_unprocessed.name}</h1>
+                <h1>Prediction: {prediction_unprocessed.name}</h1>
                 {
                     //If predication is null, show only "Upload file"-area
 
