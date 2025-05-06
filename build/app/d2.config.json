@@ -1,0 +1,12 @@
+{
+  "type": "app",
+  "title": "Modeling",
+  "id": "a29851f9-82a7-4ecd-8b2c-58e0f220bc75",
+  "minDHIS2Version": "2.40.7",
+  "name": "modeling-app",
+  "version": "1.2.1",
+  "description": "",
+  "entryPoints": {
+    "app": "index.html"
+  }
+}
