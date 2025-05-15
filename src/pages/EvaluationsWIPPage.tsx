@@ -15,8 +15,6 @@ import {
     DataTableCell,
     DataTableColumnHeader,
     Card,
-    MultiSelectField,
-    MultiSelectOption,
 } from '@dhis2/ui';
 import i18n from '@dhis2/d2-i18n';
 import styles from './EvaluationsWIPPage.module.css';
@@ -28,7 +26,6 @@ import {
     useReactTable,
     getSortedRowModel,
     SortingState,
-    VisibilityState,
 } from '@tanstack/react-table';
 import { BackTestRead } from '@dhis2-chap/chap-lib';
 
@@ -63,64 +60,19 @@ const getSortDirection = (column: any) => {
     return column.getIsSorted() as 'asc' | 'desc';
 };
 
-type ColumnOption = {
-    label: string;
-    value: string;
-};
-
 export const EvaluationsWIPPage: React.FC = () => {
     const { backtests, error, isLoading } = useBacktests();
     const [sorting, setSorting] = React.useState<SortingState>([
         { id: 'created', desc: true }
     ]);
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-    const [selectedColumns, setSelectedColumns] = React.useState<string[]>([]);
-    
-    const columnOptions: ColumnOption[] = React.useMemo(() => 
-        columns.map(column => {
-            const header = column.header;
-            const id = column.id || '';
-            return {
-                label: typeof header === 'string' ? header : id,
-                value: id
-            };
-        }), []);
-    
-    React.useEffect(() => {
-        const allColumnIds = columns.map(column => column.id || '').filter(id => id !== '');
-        setSelectedColumns(allColumnIds);
-        
-        const initialVisibility = allColumnIds.reduce((acc, columnId) => {
-            acc[columnId] = true;
-            return acc;
-        }, {} as Record<string, boolean>);
-        
-        setColumnVisibility(initialVisibility);
-    }, []);
-    
-    const handleColumnChange = (selected: string[]) => {
-        setSelectedColumns(selected);
-        
-        const newVisibility = columns.reduce((acc, column) => {
-            const id = column.id || '';
-            if (id !== '') {
-                acc[id] = selected.includes(id);
-            }
-            return acc;
-        }, {} as Record<string, boolean>);
-        
-        setColumnVisibility(newVisibility);
-    };
 
     const table = useReactTable({
         data: backtests || [],
         columns,
         state: {
             sorting,
-            columnVisibility,
         },
         onSortingChange: setSorting,
-        onColumnVisibilityChange: setColumnVisibility,
         getSortedRowModel: getSortedRowModel(),
         getCoreRowModel: getCoreRowModel(),
     });
@@ -146,20 +98,6 @@ export const EvaluationsWIPPage: React.FC = () => {
     return (
         <Card className={styles.container}>
             <h2>{i18n.t('Evaluations (WIP)')}</h2>
-            
-            <div className={styles.columnSelector}>
-                <MultiSelectField
-                    selected={selectedColumns}
-                    onChange={({ selected }: { selected: string[] }) => handleColumnChange(selected)}
-                    placeholder={i18n.t('Select columns to display')}
-                    label={i18n.t('Visible columns')}
-                >
-                    {columnOptions.map(option => (
-                        <MultiSelectOption key={option.value} label={option.label} value={option.value} />
-                    ))}
-                </MultiSelectField>
-            </div>
-            
             <DataTable>
                 <DataTableHead>
                     {table.getHeaderGroups().map((headerGroup) => (
