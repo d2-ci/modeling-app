@@ -1,0 +1,15 @@
+{
+  "type": "app",
+  "title": "Modeling",
+  "id": "a29851f9-82a7-4ecd-8b2c-58e0f220bc75",
+  "minDHIS2Version": "2.40",
+  "customAuthorities": [
+    "F_CHAP_MODELING_APP"
+  ],
+  "name": "modeling-app",
+  "version": "1.4.0",
+  "description": "",
+  "entryPoints": {
+    "app": "index.html"
+  }
+}
