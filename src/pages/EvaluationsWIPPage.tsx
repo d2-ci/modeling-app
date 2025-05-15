@@ -1,0 +1,69 @@
+import React, { useState } from 'react';
+import {
+    CircularLoader,
+    NoticeBox,
+    Card,
+    Button,
+    IconAdd24,
+    InputField,
+} from '@dhis2/ui';
+import i18n from '@dhis2/d2-i18n';
+import styles from './EvaluationsWIPPage.module.css';
+import { useBacktests } from '../hooks/useBacktests';
+import { useFilteredData } from '../hooks/useFilteredData';
+import { BacktestsTable } from '../components/BacktestsTable';
+import PageHeader from '../features/common-features/PageHeader/PageHeader';
+
+export const EvaluationsWIPPage: React.FC = () => {
+    const { backtests, error, isLoading } = useBacktests();
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const filteredBacktests = useFilteredData(backtests, searchTerm, ['id', 'name', 'modelId']);
+
+    if (isLoading) {
+        return (
+            <div className={styles.loadingContainer}>
+                <CircularLoader />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={styles.errorContainer}>
+                <NoticeBox error title={i18n.t('Error loading evaluations')}>
+                    {error.message || i18n.t('An unknown error occurred')}
+                </NoticeBox>
+            </div>
+        );
+    }
+
+    return (
+        <>
+            <PageHeader
+                pageTitle={i18n.t('Evaluations')}
+                pageDescription={i18n.t('Evaluates the accuracy of a predictive model using historical data. Compares actual outcomes with predicted values to assess model performance.')}
+            />
+            <Card className={styles.container}>
+                <div className={styles.buttonContainer}>
+                    <div className={styles.leftSection}>
+                        <InputField
+                            placeholder={i18n.t('Search evaluations')}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.value || '')}
+                            className={styles.searchInput}
+                        />
+                    </div>
+                    <div className={styles.rightSection}>
+                        <Button
+                            primary
+                            icon={<IconAdd24 />}
+                        >
+                            {i18n.t('New evaluation')}
+                        </Button>
+                    </div>
+                </div>
+                <BacktestsTable backtests={filteredBacktests} />
+            </Card>
+        </>
+    );
+};
