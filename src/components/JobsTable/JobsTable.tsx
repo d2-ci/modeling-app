@@ -8,7 +8,6 @@ import {
     DataTableColumnHeader,
     DataTableFoot,
     Pagination,
-    Chip,
 } from '@dhis2/ui';
 import i18n from '@dhis2/d2-i18n';
 import {
@@ -19,24 +18,15 @@ import {
     getSortedRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
+    Column,
 } from '@tanstack/react-table';
-import { JobDescription } from '@dhis2-chap/chap-lib';
+import {
+    JobDescription,
+} from '@dhis2-chap/chap-lib';
 import styles from './JobsTable.module.css';
-import { JobsTableFilters } from './JobsTableFilters/JobsTableFilters';
-
-const statuses = {
-    SUCCESS: 'SUCCESS',
-    PENDING: 'PENDING',
-    STARTED: 'STARTED',
-    FAILED: 'FAILED',
-}
-
-const labelByStatus = {
-    [statuses.SUCCESS]: i18n.t('Success'),
-    [statuses.PENDING]: i18n.t('Pending'),
-    [statuses.STARTED]: i18n.t('Running'),
-    [statuses.FAILED]: i18n.t('Failed'),
-}
+import { JobsTableFilters } from './JobsTableFilters';
+import { StatusCell } from './TableCells/StatusCell';
+import { JobTypeCell } from './TableCells/JobTypeCell';
 
 const columnHelper = createColumnHelper<JobDescription>();
 
@@ -45,6 +35,16 @@ const columns = [
         header: i18n.t('ID'),
         enableSorting: false,
     }),
+    columnHelper.accessor('status', {
+        header: i18n.t('Status'),
+        filterFn: 'equals',
+        enableSorting: false,
+        cell: (info) => (
+            <StatusCell
+                status={info.getValue()}
+            />
+        ),
+    }),
     columnHelper.accessor('name', {
         header: i18n.t('Name'),
         filterFn: 'includesString',
@@ -52,30 +52,30 @@ const columns = [
     columnHelper.accessor('type', {
         header: i18n.t('Type'),
         enableSorting: false,
-    }),
-    columnHelper.accessor('status', {
-        header: i18n.t('Status'),
-        filterFn: 'equals',
-        enableSorting: false,
-        cell: (info) => info.getValue() ? (
-            <Chip dense>
-                {labelByStatus[info.getValue() as keyof typeof labelByStatus] || info.getValue()}
-            </Chip>
-        ) : null,
+        cell: (info) => (
+            <JobTypeCell
+                jobType={info.getValue()}
+            />
+        ),
     }),
     columnHelper.accessor('start_time', {
         header: i18n.t('Start Time'),
-        cell: (info) => info.getValue() ? new Date(info.getValue() as string).toLocaleString() : undefined,
+        cell: (info) => {
+            const value = info.getValue();
+            return value ? new Date(value).toLocaleString() : undefined;
+        },
     }),
     columnHelper.accessor('end_time', {
         header: i18n.t('End Time'),
-        cell: (info) => info.getValue() ? new Date(info.getValue() as string).toLocaleString() : undefined,
+        cell: (info) => {
+            const value = info.getValue();
+            return value ? new Date(value).toLocaleString() : undefined;
+        },
     }),
 ];
 
-const getSortDirection = (column: any) => {
-    if (!column.getIsSorted()) return 'default';
-    return column.getIsSorted() as 'asc' | 'desc';
+const getSortDirection = (column: Column<JobDescription>) => {
+    return column.getIsSorted() || 'default';
 };
 
 type Props = {
@@ -88,6 +88,9 @@ export const JobsTable = ({ jobs }: Props) => {
         columns,
         initialState: {
             sorting: [{ id: 'start_time', desc: true }],
+            columnVisibility: {
+                id: false,
+            },
         },
         getRowId: (row) => row.id.toString(),
         enableRowSelection: false,
@@ -105,7 +108,6 @@ export const JobsTable = ({ jobs }: Props) => {
                 <div className={styles.leftSection}>
                     <JobsTableFilters
                         table={table}
-                        statuses={statuses}
                     />
                 </div>
             </div>
