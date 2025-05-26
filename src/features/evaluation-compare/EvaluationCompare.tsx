@@ -17,6 +17,7 @@ import {
     IconVisualizationLineMulti24,
     MultiSelect,
     MultiSelectOption,
+    NoticeBox,
 } from '@dhis2/ui'
 import i18n from '@dhis2/d2-i18n'
 import {
@@ -29,7 +30,7 @@ import { useEvaluationOverlap } from '../../hooks/useEvaluationOverlap'
 import { useOrgUnitsById } from '../../hooks/useOrgUnitsById'
 import PageHeader from '../common-features/PageHeader/PageHeader'
 import OrganisationUnitMultiSelect from '../../components/OrganisationUnitsSelect/OrganisationUnitMultiSelect'
-import SplitPeriodSlider from './SplitPointSlider'
+import { SplitPeriodSlider } from './SplitPeriodSlider'
 
 const MAX_SELECTED_ORG_UNITS = 10
 
@@ -98,8 +99,8 @@ export const EvaluationCompare = () => {
         }
     }, [resolvedSplitPoints, selectedSplitPoint])
 
-    const evaluationsPerOrgUnit = useMemo(() => {
-        return combined.viewData
+    const { dataForSplitPoint, periods } = useMemo(() => {
+        const dataForSplitPoint = combined.viewData
             .filter((v) => v.splitPoint === resolvedSelectedSplitPoint)
             .flatMap((v) =>
                 v.evaluation.map((e) => ({
@@ -110,12 +111,15 @@ export const EvaluationCompare = () => {
                         )?.displayName ?? e.orgUnitId,
                 }))
             )
+        const periods = dataForSplitPoint[0]?.models[0].data.periods ?? []
+        return { dataForSplitPoint, periods }
     }, [
         combined.viewData,
         resolvedSelectedSplitPoint,
         orgUnits.data?.organisationUnits,
     ])
 
+    console.log({periods})
     return (
         <div className={css.wrapper}>
             <PageHeader
@@ -145,24 +149,6 @@ export const EvaluationCompare = () => {
                     />
                 </div>
                 <div className={css.selectorRow}>
-                    <SplitPeriodSelector
-                        prefix={
-                            noMatchingSplitPeriods
-                                ? i18n.t(
-                                      'Evaluations do not share any split periods'
-                                  )
-                                : i18n.t('Split Period')
-                        }
-                        splitPeriods={resolvedSplitPoints}
-                        selectedSplitPeriod={resolvedSelectedSplitPoint}
-                        setSelectedSplitPeriod={setSelectedSplitPoint}
-                        filterable
-                        noMatchText={i18n.t('No split periods found')}
-                        disabled={
-                            noMatchingSplitPeriods ||
-                            resolvedSplitPoints.length < 1
-                        }
-                    />
                     <OrganisationUnitMultiSelect
                         prefix={i18n.t('Organisation Units')}
                         selected={compatibleSelectedOrgUnits.map((ou) => ou.id)}
@@ -176,18 +162,28 @@ export const EvaluationCompare = () => {
                     />
                 </div>
             </div>
-            <div className={css.footerSlider}>
-                <SplitPeriodSlider
-                    splitPeriods={resolvedSplitPoints}
-                    selectedSplitPeriod={resolvedSelectedSplitPoint}
-                    onChange={setSelectedSplitPoint}
-                />
-            </div>
+            {noMatchingSplitPeriods && (
+                <NoticeBox warning>
+                    {i18n.t(
+                        'Selected evaluations do not have any split periods in common. Please select evaluations with overlapping split periods.'
+                    )}
+                </NoticeBox>
+            )}
+            {resolvedSplitPoints.length > 0 && (
+                <div className={css.footerSlider}>
+                    <SplitPeriodSlider
+                        splitPeriods={resolvedSplitPoints}
+                        selectedSplitPeriod={resolvedSelectedSplitPoint}
+                        onChange={setSelectedSplitPoint}
+                        periods={periods}
+                    />
+                </div>
+            )}
             <div>
                 {combined.viewData.length > 0 && (
                     <ComparisonPlotList
                         useVirtuoso={false}
-                        evaluationPerOrgUnits={evaluationsPerOrgUnit}
+                        evaluationPerOrgUnits={dataForSplitPoint}
                     />
                 )}
             </div>
