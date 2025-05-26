@@ -1,7 +1,5 @@
 import {
-    ComparionPlotWrapper,
-    ComparisonPlotList,
-    SplitPeriodSelector,
+    ComparisonPlotList
 } from '@dhis2-chap/chap-lib'
 import {
     EvaluationCompatibleSelector,
@@ -10,14 +8,10 @@ import {
 import React, { useEffect, useMemo } from 'react'
 import css from './EvaluationCompare.module.css'
 import {
-    Help,
     IconArrowLeft16,
     IconArrowRight16,
     IconVisualizationLine24,
-    IconVisualizationLineMulti24,
-    MultiSelect,
-    MultiSelectOption,
-    NoticeBox,
+    IconVisualizationLineMulti24, NoticeBox
 } from '@dhis2/ui'
 import i18n from '@dhis2/d2-i18n'
 import {
