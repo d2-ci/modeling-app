@@ -119,7 +119,6 @@ export const EvaluationCompare = () => {
         orgUnits.data?.organisationUnits,
     ])
 
-    console.log({periods})
     return (
         <div className={css.wrapper}>
             <PageHeader
