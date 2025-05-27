@@ -1,117 +1,63 @@
-import {
-    ComparisonPlotList
-} from '@dhis2-chap/chap-lib'
+import { ComparisonPlotList } from '@dhis2-chap/chap-lib'
 import {
     EvaluationCompatibleSelector,
     EvaluationSelectorBase,
 } from '../select-evaluation/EvaluationSelector'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import css from './EvaluationCompare.module.css'
 import {
     IconArrowLeft16,
     IconArrowRight16,
     IconVisualizationLine24,
-    IconVisualizationLineMulti24, NoticeBox
+    IconVisualizationLineMulti24,
+    NoticeBox,
 } from '@dhis2/ui'
 import i18n from '@dhis2/d2-i18n'
-import {
-    useSelectedEvaluationsController,
-    useSelectedOrgUnits,
-    useSelectedSplitPoint,
-} from './useSelectEvaluations'
 import { usePlotDataForEvaluations } from '../../hooks/usePlotDataForEvaluations'
-import { useEvaluationOverlap } from '../../hooks/useEvaluationOverlap'
-import { useOrgUnitsById } from '../../hooks/useOrgUnitsById'
 import PageHeader from '../common-features/PageHeader/PageHeader'
 import OrganisationUnitMultiSelect from '../../components/OrganisationUnitsSelect/OrganisationUnitMultiSelect'
+import { useCompareSelectionController } from './useCompareSelectionController'
 import { SplitPeriodSlider } from './SplitPeriodSlider'
 
 const MAX_SELECTED_ORG_UNITS = 10
 
 export const EvaluationCompare = () => {
     const {
-        query: evaluationsQuery,
+        selectedEvaluations,
         baseEvaluation,
         comparisonEvaluation,
+        evaluations,
+        selectedOrgUnits,
+        selectedSplitPeriod,
+        orgUnits,
+        splitPeriods,
+        hasNoMatchingSplitPeriods,
+        setSelectedOrgUnits,
         setBaseEvaluation,
         setComparisonEvaluation,
-    } = useSelectedEvaluationsController()
-
-    const selectedEvaluations = [baseEvaluation, comparisonEvaluation].filter(
-        (e) => !!e
-    )
-    const [selectedOrgUnits, setSelectedOrgUnits] = useSelectedOrgUnits()
-    const [selectedSplitPoint, setSelectedSplitPoint] = useSelectedSplitPoint()
-
-    const evaluationOverlap = useEvaluationOverlap({
-        baseEvaluation: baseEvaluation?.id,
-        comparisonEvaluation: comparisonEvaluation?.id,
+        setSelectedSplitPeriod: setSelectedSplitPoint,
+    } = useCompareSelectionController({
+        maxSelectedOrgUnits: MAX_SELECTED_ORG_UNITS,
     })
-
-    const resolvedSplitPoints = (
-        evaluationOverlap.isSuccess
-            ? evaluationOverlap.data.splitPeriods
-            : baseEvaluation?.splitPeriods ?? []
-    ).sort()
-
-    const resolvedSelectedSplitPoint =
-        selectedSplitPoint ?? resolvedSplitPoints[0]
-
-    const availableOrgUnitIds = evaluationOverlap.isSuccess
-        ? evaluationOverlap.data.orgUnits
-        : baseEvaluation?.orgUnits ?? []
-
-    const orgUnits = useOrgUnitsById(availableOrgUnitIds)
-
-    const resolvedSelectedOrgUnits =
-        selectedOrgUnits?.length > 0 ? selectedOrgUnits : availableOrgUnitIds
-    const compatibleSelectedOrgUnits = resolvedSelectedOrgUnits
-        .flatMap((ou) => {
-            const unit = orgUnits.data?.organisationUnits.find(
-                (o) => o.id === ou
-            )
-            return unit ? [unit] : []
-        })
-        .slice(0, MAX_SELECTED_ORG_UNITS)
-
-    const noMatchingSplitPeriods =
-        evaluationOverlap.isSuccess &&
-        evaluationOverlap.data.splitPeriods.length === 0
 
     const { combined } = usePlotDataForEvaluations(selectedEvaluations, {
-        orgUnits: compatibleSelectedOrgUnits.map((ou) => ou.id),
+        orgUnits: selectedOrgUnits,
     })
-
-    // reset split period if not compatible
-    useEffect(() => {
-        if (
-            resolvedSelectedSplitPoint &&
-            resolvedSplitPoints.length > 0 &&
-            !resolvedSplitPoints.some((sp) => sp === selectedSplitPoint)
-        ) {
-            setSelectedSplitPoint(undefined)
-        }
-    }, [resolvedSplitPoints, selectedSplitPoint])
 
     const { dataForSplitPoint, periods } = useMemo(() => {
         const dataForSplitPoint = combined.viewData
-            .filter((v) => v.splitPoint === resolvedSelectedSplitPoint)
+            .filter((v) => v.splitPoint === selectedSplitPeriod)
             .flatMap((v) =>
                 v.evaluation.map((e) => ({
                     ...e,
                     orgUnitName:
-                        orgUnits.data?.organisationUnits.find(
-                            (ou) => ou.id === e.orgUnitId
-                        )?.displayName ?? e.orgUnitId,
+                        orgUnits?.find((ou) => ou.id === e.orgUnitId)
+                            ?.displayName ?? e.orgUnitId,
                 }))
             )
         const periods = dataForSplitPoint[0]?.models[0].data.periods ?? []
         return { dataForSplitPoint, periods }
-    }, [
-        combined.viewData,
-        resolvedSelectedSplitPoint,
-        orgUnits.data?.organisationUnits,
-    ])
+    }, [combined.viewData, selectedSplitPeriod, orgUnits])
 
     return (
         <div className={css.wrapper}>
@@ -129,8 +75,8 @@ export const EvaluationCompare = () => {
                             setBaseEvaluation(evaluation1?.id.toString())
                         }}
                         selected={baseEvaluation}
-                        available={evaluationsQuery.data?.evaluations ?? []}
-                        loading={evaluationsQuery.isLoading}
+                        available={evaluations?.evaluations ?? []}
+                        loading={evaluations === undefined}
                         placeholder={i18n.t('Select base evaluation')}
                     />
                     <EvaluationCompatibleSelector
@@ -144,29 +90,29 @@ export const EvaluationCompare = () => {
                 <div className={css.selectorRow}>
                     <OrganisationUnitMultiSelect
                         prefix={i18n.t('Organisation Units')}
-                        selected={compatibleSelectedOrgUnits.map((ou) => ou.id)}
-                        disabled={availableOrgUnitIds.length < 1}
+                        selected={selectedOrgUnits}
+                        disabled={!orgUnits}
                         onSelect={({ selected }) =>
                             setSelectedOrgUnits(selected)
                         }
-                        available={orgUnits.data?.organisationUnits ?? []}
+                        available={orgUnits ?? []}
                         inputMaxHeight="26px"
                         maxSelections={MAX_SELECTED_ORG_UNITS}
                     />
                 </div>
             </div>
-            {noMatchingSplitPeriods && (
+            {hasNoMatchingSplitPeriods && (
                 <NoticeBox warning>
                     {i18n.t(
                         'Selected evaluations do not have any split periods in common. Please select evaluations with overlapping split periods.'
                     )}
                 </NoticeBox>
             )}
-            {resolvedSplitPoints.length > 0 && (
+            {splitPeriods.length > 0 && (
                 <div className={css.footerSlider}>
                     <SplitPeriodSlider
-                        splitPeriods={resolvedSplitPoints}
-                        selectedSplitPeriod={resolvedSelectedSplitPoint}
+                        splitPeriods={splitPeriods}
+                        selectedSplitPeriod={selectedSplitPeriod}
                         onChange={setSelectedSplitPoint}
                         periods={periods}
                     />
