@@ -1,7 +1,6 @@
 import { AnalyticsService, BacktestDomain } from '@dhis2-chap/chap-lib'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
-import useOrgUnits from './useOrgUnits'
 
 type UseBackTestOverlapOptions = {
     baseEvaluation?: number
@@ -26,12 +25,6 @@ export const useEvaluationOverlap = (options: UseBackTestOverlapOptions) => {
         enabled: !!baseEvaluation && !!comparisonEvaluation,
         select: useCallback(
             (data: BacktestDomain) => ({
-                // orgUnits: data.orgUnits.map(
-                //     (orgunitId) =>
-                //         orgUnits.orgUnits?.organisationUnits.find(
-                //             (o) => o.id === orgunitId
-                //         ) ?? { id: orgunitId, displayName: orgunitId }
-                // ),
                 ...data,
                 splitPeriods: data.splitPeriods.sort(),
             }),

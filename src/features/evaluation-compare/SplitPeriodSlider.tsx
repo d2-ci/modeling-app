@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import css from './SplitPeriodSlider.module.css'
 import { getPeriodNameFromId } from '../utils/Time'
 import i18n from '@dhis2/d2-i18n'
@@ -78,6 +78,27 @@ export const SplitPeriodSlider: React.FC<SplitPeriodSlider> = ({
         )`
     }
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if(event.defaultPrevented) {
+                return
+            }
+            const currentIndex = splitPeriodStartIndex
+            const downKeys = new Set(['j', 'J'])
+            const upKeys = new Set(['k', 'K'])
+            if (downKeys.has(event.key)) {
+                handleChange([currentIndex - 1])
+            } else if (upKeys.has(event.key)) {
+                handleChange([currentIndex + 1])
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [splitPeriodStartIndex, splitPeriods, onChange])
+
     return (
         <div className={css.wrapper}>
             <div className={css.selectedLabelContainer}>
@@ -99,8 +120,12 @@ export const SplitPeriodSlider: React.FC<SplitPeriodSlider> = ({
                     min={0}
                     max={withExtraPeriods.length - 1}
                     values={[splitPeriodStartIndex]}
-                    renderThumb={({ props }) => (
-                        <div {...props} key={props.key} className={css.thumb}>
+                    renderThumb={({ props: thumbProps }) => (
+                        <div
+                            {...thumbProps}
+                            key={thumbProps.key}
+                            className={css.thumb}
+                        >
                             <svg
                                 width="100%"
                                 height="auto"
@@ -111,11 +136,11 @@ export const SplitPeriodSlider: React.FC<SplitPeriodSlider> = ({
                             </svg>
                         </div>
                     )}
-                    renderTrack={({ props, children }) => (
+                    renderTrack={({ props: trackProps, children }) => (
                         <div
-                            {...props}
+                            {...trackProps}
                             style={{
-                                ...props.style,
+                                ...trackProps.style,
                                 background: getTrackBackground(),
                             }}
                             className={css.track}
@@ -124,9 +149,13 @@ export const SplitPeriodSlider: React.FC<SplitPeriodSlider> = ({
                         </div>
                     )}
                     onChange={handleChange}
-                    renderMark={({ props, index }) =>
+                    renderMark={({ props: markProps, index }) =>
                         index >= splitPeriods.length ? null : (
-                            <div {...props} key={props.key} className={css.mark} />
+                            <div
+                                {...markProps}
+                                key={markProps.key}
+                                className={css.mark}
+                            />
                         )
                     }
                 />

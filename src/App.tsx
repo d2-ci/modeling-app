@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom'
 import ErrorPage from './components/ErrorPage'
 import React from 'react'
+import './locales'
 import './App.css'
 import PageWrapper from './components/PageWrapper'
 import EvaluationPage from './pages/EvaluationPage'
@@ -18,8 +19,10 @@ import { Layout } from './components/layout/Layout'
 import { RouteValidator } from './components/RouteValidator'
 import InfoAboutReportingBugs from './features/common-features/InfoAboutReportingBugs/InfoAboutReportingBugs'
 import WarnAboutIncompatibleVersion from './features/common-features/WarnAboutIncompatibleVersion/WarnAboutIncompatibleVersion'
+import { EvaluationsWIPPage } from './pages/EvaluationWIPPAge'
 import { ChapValidator } from './components/ChapValidator'
-import EvaluationCompare from './pages/EvaluationCompare'
+import { JobsPage } from './pages/JobsPage'
+import { EvaluationComparePage } from './pages/EvaluationCompare'
 
 export type RouteHandle = {
     fullWidth?: boolean
@@ -60,9 +63,17 @@ const router = createHashRouter([
                                 handle: {
                                     fullWidth: true,
                                 } satisfies RouteHandle,
-                                element: <EvaluationCompare />,
+                                element: <EvaluationComparePage />,
                             },
                         ],
+                    },
+                    {
+                        path: '/evaluationsWIP',
+                        element: <EvaluationsWIPPage />,
+                    },
+                    {
+                        path: '/jobs',
+                        element: <JobsPage />,
                     },
                     {
                         path: '/predict',

@@ -2,7 +2,7 @@ import { ComparisonPlotList } from '@dhis2-chap/chap-lib'
 import {
     EvaluationCompatibleSelector,
     EvaluationSelectorBase,
-} from '../select-evaluation/EvaluationSelector'
+} from '../select-evaluation'
 import React, { useMemo } from 'react'
 import css from './EvaluationCompare.module.css'
 import {
@@ -14,9 +14,10 @@ import {
 } from '@dhis2/ui'
 import i18n from '@dhis2/d2-i18n'
 import { usePlotDataForEvaluations } from '../../hooks/usePlotDataForEvaluations'
-import PageHeader from '../common-features/PageHeader/PageHeader'
+import { PageHeader } from '../common-features/PageHeader/PageHeader'
 import OrganisationUnitMultiSelect from '../../components/OrganisationUnitsSelect/OrganisationUnitMultiSelect'
 import { useCompareSelectionController } from './useCompareSelectionController'
+import { useOrgUnitsById } from '../../hooks/useOrgUnitsById'
 import { SplitPeriodSlider } from './SplitPeriodSlider'
 
 const MAX_SELECTED_ORG_UNITS = 10
@@ -29,7 +30,7 @@ export const EvaluationCompare = () => {
         evaluations,
         selectedOrgUnits,
         selectedSplitPeriod,
-        orgUnits,
+        availableOrgUnitIds,
         splitPeriods,
         hasNoMatchingSplitPeriods,
         setSelectedOrgUnits,
@@ -43,6 +44,7 @@ export const EvaluationCompare = () => {
     const { combined } = usePlotDataForEvaluations(selectedEvaluations, {
         orgUnits: selectedOrgUnits,
     })
+    const { data: orgUnitsData } = useOrgUnitsById(availableOrgUnitIds)
 
     const { dataForSplitPeriod, periods } = useMemo(() => {
         const dataForSplitPeriod = combined.viewData
@@ -51,31 +53,31 @@ export const EvaluationCompare = () => {
                 v.evaluation.map((e) => ({
                     ...e,
                     orgUnitName:
-                        orgUnits?.find((ou) => ou.id === e.orgUnitId)
-                            ?.displayName ?? e.orgUnitId,
+                        orgUnitsData?.organisationUnits?.find(
+                            (ou) => ou.id === e.orgUnitId
+                        )?.displayName ?? e.orgUnitId,
                 }))
             )
         const periods = dataForSplitPeriod[0]?.models[0].data.periods ?? []
         return { dataForSplitPeriod, periods }
-    }, [combined.viewData, selectedSplitPeriod, orgUnits])
+    }, [combined.viewData, selectedSplitPeriod, orgUnitsData])
 
     return (
         <div className={css.wrapper}>
-            <PageHeader
-                pageTitle={i18n.t('Compare evaluations')}
-                pageDescription={i18n.t(
-                    'Compare evaluations to assess model, co-variates and data performance.'
-                )}
-            />
-
             <div className={css.selectionToolbar}>
+                <PageHeader
+                    pageTitle={i18n.t('Compare evaluations')}
+                    pageDescription={i18n.t(
+                        'Compare evaluations to assess model, co-variates and data performance.'
+                    )}
+                />
                 <div className={css.compareSelectors}>
                     <EvaluationSelectorBase
                         onSelect={(evaluation1) => {
                             setBaseEvaluation(evaluation1?.id.toString())
                         }}
                         selected={baseEvaluation}
-                        available={evaluations?.evaluations ?? []}
+                        available={evaluations ?? []}
                         loading={evaluations === undefined}
                         placeholder={i18n.t('Select base evaluation')}
                     />
@@ -91,11 +93,11 @@ export const EvaluationCompare = () => {
                     <OrganisationUnitMultiSelect
                         prefix={i18n.t('Organisation Units')}
                         selected={selectedOrgUnits}
-                        disabled={!orgUnits}
+                        disabled={!orgUnitsData}
                         onSelect={({ selected }) =>
                             setSelectedOrgUnits(selected)
                         }
-                        available={orgUnits ?? []}
+                        available={orgUnitsData?.organisationUnits ?? []}
                         inputMaxHeight="26px"
                         maxSelections={MAX_SELECTED_ORG_UNITS}
                     />

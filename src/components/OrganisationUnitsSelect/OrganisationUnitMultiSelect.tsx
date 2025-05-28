@@ -1,6 +1,4 @@
 import React, { useMemo, useState } from 'react'
-import { unstable_batchedUpdates } from 'react-dom'
-
 import {
     MultiSelect,
     MultiSelectOption,
@@ -45,7 +43,7 @@ const OrganisationUnitMultiSelect = ({
 
     // Multiselect will crash if selected contains items that are not in available
     // this can happen when loading, thus we add the selected items to the available list
-    const { orgUnitsMap, orgUnits } = useMemo(() => {
+    const { orgUnits } = useMemo(() => {
         const orgUnitsMap = new Map(available.map((o) => [o.id, o]))
         resolvedSelected.forEach((s) => {
             if (!orgUnitsMap.get(s)) {
@@ -57,7 +55,6 @@ const OrganisationUnitMultiSelect = ({
         })
 
         return {
-            orgUnitsMap: orgUnitsMap,
             orgUnits: Array.from(orgUnitsMap.values()),
         }
     }, [available, resolvedSelected])
@@ -67,6 +64,8 @@ const OrganisationUnitMultiSelect = ({
             prefix={i18n.t('Organisation Units')}
             selected={resolvedSelected}
             disabled={available.length < 1}
+            filterable
+            filterPlaceholder={i18n.t('Search organisation units')}
             onChange={({ selected }, event) => {
                 const isChipDeletion = event.type === 'click'
                 if (isChipDeletion) {
@@ -81,11 +80,11 @@ const OrganisationUnitMultiSelect = ({
                     onSelect({
                         selected: pendingSelectedOrgUnits ?? [],
                     })
-
                     setPendingSelectedOrgUnits(null)
                 }
             }}
             inputMaxHeight="26px"
+            {...multiSelectProps}
         >
             {selected.length >= maxSelections && (
                 <Help className={css.help} warning>

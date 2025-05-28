@@ -5,13 +5,12 @@ import {
     useSelectedSplitPeriod,
 } from './useSearchParamSelections'
 import { useEvaluationOverlap } from '../../hooks/useEvaluationOverlap'
-import { useOrgUnitsById } from '../../hooks/useOrgUnitsById'
 
 export const useCompareSelectionController = ({
     maxSelectedOrgUnits = 10,
 } = {}) => {
     const {
-        query: evaluationsQuery,
+        evaluations,
         baseEvaluation,
         comparisonEvaluation,
         setBaseEvaluation,
@@ -23,16 +22,22 @@ export const useCompareSelectionController = ({
         [baseEvaluation, comparisonEvaluation]
     )
 
-    const [selectedSplitPeriod, setSelectedSplitPeriod] = useSelectedSplitPeriod()
+    const [selectedSplitPeriod, setSelectedSplitPeriod] =
+        useSelectedSplitPeriod()
 
     const evaluationOverlap = useEvaluationOverlap({
         baseEvaluation: baseEvaluation?.id,
         comparisonEvaluation: comparisonEvaluation?.id,
     })
 
-    const resolvedSplitPeriods = evaluationOverlap.isSuccess
-        ? evaluationOverlap.data.splitPeriods
-        : baseEvaluation?.splitPeriods ?? []
+    const resolvedSplitPeriods = useMemo(
+        () =>
+            (evaluationOverlap.isSuccess
+                ? evaluationOverlap.data.splitPeriods
+                : baseEvaluation?.splitPeriods ?? []
+            ).sort(),
+        [evaluationOverlap.data, baseEvaluation?.splitPeriods]
+    )
 
     const resolvedSelectedSplitPeriod =
         selectedSplitPeriod ?? resolvedSplitPeriods[0]
@@ -46,8 +51,6 @@ export const useCompareSelectionController = ({
             availableOrgUnitSet: new Set(availableOrgUnitIds),
         }
     }, [evaluationOverlap.data, baseEvaluation?.orgUnits])
-
-    const orgUnits = useOrgUnitsById(availableOrgUnitIds)
 
     const [selectedOrgUnits, setSelectedOrgUnits] = useSelectedOrgUnits({
         initialValue: availableOrgUnitIds.slice(0, maxSelectedOrgUnits),
@@ -79,9 +82,9 @@ export const useCompareSelectionController = ({
         comparisonEvaluation,
         selectedSplitPeriod: resolvedSelectedSplitPeriod,
         selectedOrgUnits: compatibleSelectedOrgUnits,
-        evaluations: evaluationsQuery.data,
+        availableOrgUnitIds,
+        evaluations,
         splitPeriods: resolvedSplitPeriods,
-        orgUnits: orgUnits.data?.organisationUnits,
         hasNoMatchingSplitPeriods,
         setBaseEvaluation,
         setComparisonEvaluation,
