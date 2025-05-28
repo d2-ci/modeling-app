@@ -1,8 +1,8 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
-import { useEvaluations } from '../../hooks/useEvaluations'
 import { BackTestRead } from '@dhis2-chap/chap-lib'
+import { useBacktests } from '../../hooks/useBacktests'
 
 const evaluationParamsSchema = z.object({
     baseEvaluation: z.string().optional(),
@@ -13,12 +13,10 @@ const evaluationParamsSchema = z.object({
     comparisonEvaluation: z.array(z.string()).optional().default([]),
 })
 
-evaluationParamsSchema.shape.comparisonEvaluation._type
-
 const PARAMS_KEYS = {
     baseEvaluation: 'baseEvaluation',
     comparisonEvaluation: 'comparisonEvaluation',
-    splitPoint: 'splitPoint',
+    splitPeriod: 'splitPeriod',
     orgUnit: 'orgUnit',
 }
 
@@ -61,7 +59,7 @@ const createSearchParamsListUpdater =
         return updatedParams
     }
 
-export const useSelectEvaluations = () => {
+export const useSelectedEvaluations = () => {
     const [searchParams, setSearchParams] = useSearchParams()
 
     const params: EvaluationParams = useMemo(() => {
@@ -133,62 +131,64 @@ export const useSelectEvaluations = () => {
 export type EvaluationControllerResult = {
     baseEvaluation: BackTestRead | undefined
     comparisonEvaluation: BackTestRead | undefined
-    query: ReturnType<typeof useEvaluations>
+    evaluations: BackTestRead[] | undefined
 } & Pick<
-    ReturnType<typeof useSelectEvaluations>,
+    ReturnType<typeof useSelectedEvaluations>,
     'setBaseEvaluation' | 'setComparisonEvaluation'
 >
 
 export const useSelectedEvaluationsController =
     (): EvaluationControllerResult => {
-        const evaluationsQuery = useEvaluations()
+        const { backtests } = useBacktests()
         const {
             baseEvaluation,
             comparisonEvaluation,
-            comparisonEvaluations,
-            setComparisonEvaluations,
-            ...selectors
-        } = useSelectEvaluations()
+            setBaseEvaluation,
+            setComparisonEvaluation,
+        } = useSelectedEvaluations()
 
         // map selected evaluationIds to the actual evaluations
         const mappedEvaluations = useMemo(() => {
-            if (!evaluationsQuery.data) {
+            if (!backtests || backtests.length === 0) {
                 return {
                     baseEvaluation: undefined,
                     comparisonEvaluation: undefined,
                     comparisonEvaluations: [],
                 }
             }
-            const { evaluationsMap } = evaluationsQuery.data
+            const backTestMap = new Map(
+                backtests.map((bt) => [bt.id.toString(), bt])
+            )
             return {
                 baseEvaluation: baseEvaluation
-                    ? evaluationsMap.get(baseEvaluation)
+                    ? backTestMap.get(baseEvaluation)
                     : undefined,
                 comparisonEvaluation: comparisonEvaluation
-                    ? evaluationsMap.get(comparisonEvaluation)
+                    ? backTestMap.get(comparisonEvaluation)
                     : undefined,
             }
-        }, [evaluationsQuery.data, baseEvaluation, comparisonEvaluation])
+        }, [backtests, baseEvaluation, comparisonEvaluation])
 
         return {
             ...mappedEvaluations,
-            ...selectors,
-            query: evaluationsQuery,
+            setBaseEvaluation,
+            setComparisonEvaluation,
+            evaluations: backtests,
         }
     }
 
-export const useSelectedSplitPoint = () => {
+export const useSelectedSplitPeriod = () => {
     const [searchParams, setSearchParams] = useSearchParams()
 
-    const splitPoint = searchParams.get(PARAMS_KEYS.splitPoint)
+    const splitPoint = searchParams.get(PARAMS_KEYS.splitPeriod)
     const setSplitPoint = useCallback(
         (splitPoint: string | undefined) => {
             setSearchParams((prev) => {
                 const updatedParams = new URLSearchParams(prev)
                 if (splitPoint) {
-                    updatedParams.set(PARAMS_KEYS.splitPoint, splitPoint)
+                    updatedParams.set(PARAMS_KEYS.splitPeriod, splitPoint)
                 } else {
-                    updatedParams.delete(PARAMS_KEYS.splitPoint)
+                    updatedParams.delete(PARAMS_KEYS.splitPeriod)
                 }
                 return updatedParams
             })
@@ -198,12 +198,23 @@ export const useSelectedSplitPoint = () => {
     return [splitPoint, setSplitPoint] as const
 }
 
-export const useSelectedOrgUnits = () => {
+export const useSelectedOrgUnits = ({
+    initialValue,
+}: { initialValue?: string[] } = {}) => {
+    // we cant use useSearchParams's initialValue, because initialValue is async, and
+    // thus empty on first render which is passed to useSearchParams, and wont update after the fact
     const [searchParams, setSearchParams] = useSearchParams()
+    const [hasSetSearchParams, setHasSetSearchParams] = useState(false)
 
-    const organisationUnits = searchParams.getAll(PARAMS_KEYS.orgUnit)
+    const hasParamSelection = searchParams.has(PARAMS_KEYS.orgUnit)
+    const resolvedValue =
+        !hasSetSearchParams && initialValue && !hasParamSelection
+            ? initialValue
+            : searchParams.getAll(PARAMS_KEYS.orgUnit)
+
     const setOrgUnits = useCallback(
         (valueOrUpdater: Updater<string[] | undefined>) => {
+            setHasSetSearchParams(true)
             return setSearchParams(
                 createSearchParamsListUpdater(
                     PARAMS_KEYS.orgUnit,
@@ -211,8 +222,8 @@ export const useSelectedOrgUnits = () => {
                 )
             )
         },
-        [setSearchParams]
+        [setSearchParams, setHasSetSearchParams]
     )
 
-    return [organisationUnits, setOrgUnits] as const
+    return [resolvedValue, setOrgUnits] as const
 }

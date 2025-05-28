@@ -8,8 +8,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import {
     AnalyticsService,
-    BackTestRead,
-    CrudService,
+    BackTestRead
 } from '@dhis2-chap/chap-lib'
 import css from './EvaluationSelector.module.css'
 import i18n from '@dhis2/d2-i18n'
@@ -34,7 +33,7 @@ export const EvaluationCompatibleSelector = ({
         error,
         isSuccess,
     } = useQuery({
-        queryKey: ['evaluations', 'compatible', compatibleEvaluationId],
+        queryKey: ['backtests', 'compatible', compatibleEvaluationId],
         queryFn: () => {
             if (!compatibleEvaluationId) {
                 return Promise.resolve([] as BackTestRead[])
@@ -138,6 +137,7 @@ export const EvaluationSelectorBase = ({
                 selected={selected?.id.toString() || ''}
                 clearable
                 filterable
+                noMatchText={i18n.t('No evaluations found')}
                 {...singleSelectProps}
                 prefix={
                     /* prefix takes presedence over placeholder, however we want
@@ -154,16 +154,7 @@ export const EvaluationSelectorBase = ({
                     <SingleSelectOption
                         key={evaluation.id}
                         value={evaluation.id.toString()}
-                        label={
-                            (
-                                <span className={css.evaluationOption}>
-                                    {evaluation.name}
-                                    <span className={css.modelName}>
-                                        {` - ${evaluation.modelId}`}
-                                    </span>
-                                </span>
-                            ) as unknown as string // hack to override wrong type in ui
-                        }
+                        label={evaluation.name ?? evaluation.id.toString()}
                     ></SingleSelectOption>
                 ))}
             </SingleSelect>
