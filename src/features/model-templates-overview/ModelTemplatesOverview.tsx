@@ -5,13 +5,20 @@ import { useRoute } from '../../hooks/useRoute'
 import { CircularLoader } from '@dhis2/ui'
 import i18n from '@dhis2/d2-i18n'
 import styles from './ModelTemplatesOverview.module.css'
+import ModelTemplateConfigForm, { ModelTemplateConfigFormValues } from './components/ModelTemplateConfigForm/ModelTemplateConfigForm'
+import { useConfigureModelTemplate } from './hooks/useConfigureModelTemplate'
 
 export const ModelTemplatesOverview = () => {
     const { route } = useRoute()
-    const { modelTemplates, error, isLoading } = useModelTemplates({ route })
+    const { modelTemplates, error, isLoading: isLoadingTemplates } = useModelTemplates({ route })
+    const { mutate: configureModelTemplate, isLoading: isSubmitting } = useConfigureModelTemplate()
+
+    const handleSubmit = (data: ModelTemplateConfigFormValues) => {
+        configureModelTemplate(data)
+    }
 
     const renderContent = () => {
-        if (isLoading) {
+        if (isLoadingTemplates) {
             return (
                 <div className={styles.loadingContainer}>
                     <CircularLoader />
@@ -37,8 +44,11 @@ export const ModelTemplatesOverview = () => {
         }
 
         return (
-            <div className={styles.dataContainer}>
-                <pre>{JSON.stringify(modelTemplates, null, 2)}</pre>
+            <div>
+                <ModelTemplateConfigForm
+                    onSubmit={handleSubmit}
+                    isSubmitting={isSubmitting}
+                />
             </div>
         )
     }
