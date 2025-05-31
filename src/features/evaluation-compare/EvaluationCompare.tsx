@@ -6,6 +6,8 @@ import {
 import React, { useMemo } from 'react'
 import css from './EvaluationCompare.module.css'
 import {
+    Button,
+    CircularLoader,
     IconArrowLeft16,
     IconArrowRight16,
     IconVisualizationLine24,
@@ -19,10 +21,12 @@ import OrganisationUnitMultiSelect from '../../components/OrganisationUnitsSelec
 import { useCompareSelectionController } from './useCompareSelectionController'
 import { useOrgUnitsById } from '../../hooks/useOrgUnitsById'
 import { SplitPeriodSlider } from './SplitPeriodSlider'
+import { useNavigate } from 'react-router-dom'
 
 const MAX_SELECTED_ORG_UNITS = 10
 
 export const EvaluationCompare = () => {
+    const navigate = useNavigate();
     const {
         selectedEvaluations,
         baseEvaluation,
@@ -41,7 +45,11 @@ export const EvaluationCompare = () => {
         maxSelectedOrgUnits: MAX_SELECTED_ORG_UNITS,
     })
 
-    const { combined } = usePlotDataForEvaluations(selectedEvaluations, {
+    const {
+        combined,
+        isLoading: plotDataLoading,
+        error,
+    } = usePlotDataForEvaluations(selectedEvaluations, {
         orgUnits: selectedOrgUnits,
     })
     const { data: orgUnitsData } = useOrgUnitsById(availableOrgUnitIds)
@@ -71,6 +79,17 @@ export const EvaluationCompare = () => {
                         'Compare evaluations to assess model, co-variates and data performance.'
                     )}
                 />
+                <div>
+                    <Button
+                        small
+                        icon={<IconArrowLeft16 />}
+                        onClick={() => {
+                            navigate('/evaluate')
+                        }}
+                    >
+                        {i18n.t('Back to evaluations')}
+                    </Button>
+                </div>
                 <div className={css.compareSelectors}>
                     <EvaluationSelectorBase
                         onSelect={(evaluation1) => {
@@ -102,12 +121,27 @@ export const EvaluationCompare = () => {
                         maxSelections={MAX_SELECTED_ORG_UNITS}
                     />
                 </div>
+                {plotDataLoading && (
+                    <div className={css.loaderWrapper}>
+                        <CircularLoader small className={css.loader} />
+                    </div>
+                )}
             </div>
             {hasNoMatchingSplitPeriods && (
                 <NoticeBox warning>
                     {i18n.t(
                         'Selected evaluations do not have any split periods in common. Please select evaluations with overlapping split periods.'
                     )}
+                </NoticeBox>
+            )}
+            {!!error && (
+                <NoticeBox
+                    title={i18n.t(
+                        'An error occurred while fetching chart data '
+                    )}
+                    error
+                >
+                    {error.message}
                 </NoticeBox>
             )}
             {splitPeriods.length > 0 && (
