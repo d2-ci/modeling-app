@@ -33,6 +33,22 @@ import { BatchActions } from './BatchActions';
 const columnHelper = createColumnHelper<BackTestRead>();
 
 const columns = [
+    columnHelper.display({
+        id: 'select',
+        header: ({ table }) => (
+            <Checkbox
+                checked={table.getIsAllPageRowsSelected()}
+                onChange={() => table.toggleAllPageRowsSelected()}
+                disabled={table.getRowModel().rows.length === 0}
+            />
+        ),
+        cell: ({ row }) => (
+            <Checkbox
+                checked={row.getIsSelected()}
+                onChange={() => row.toggleSelected()}
+            />
+        ),
+    }),
     columnHelper.accessor('id', {
         header: i18n.t('ID'),
         filterFn: 'equals',
@@ -48,6 +64,12 @@ const columns = [
     columnHelper.accessor('modelId', {
         header: i18n.t('Model'),
         filterFn: 'equals',
+        cell: (info) => {
+            const modelId = info.getValue();
+            const models = (info.table.options.meta as { models: ModelSpecRead[] })?.models;
+            const model = models?.find((model: ModelSpecRead) => model.name === modelId);
+            return model?.displayName || modelId;
+        }
     }),
     columnHelper.display({
         id: 'actions',
@@ -78,6 +100,9 @@ export const BacktestsTable = ({ backtests, models }: Props) => {
         initialState: {
             sorting: [{ id: 'created', desc: true }],
         },
+        meta: {
+            models,
+        },
         getRowId: (row) => row.id.toString(),
         enableRowSelection: true,
         getSortedRowModel: getSortedRowModel(),
@@ -106,9 +131,8 @@ export const BacktestsTable = ({ backtests, models }: Props) => {
                             primary
                             icon={<IconAdd16 />}
                             small
-                            disabled
                             onClick={() => {
-                                navigate('/evaluations/new');
+                                navigate('/evaluate/new');
                             }}
                         >
                             {i18n.t('New evaluation')}
@@ -120,13 +144,6 @@ export const BacktestsTable = ({ backtests, models }: Props) => {
                 <DataTableHead>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <DataTableRow key={headerGroup.id}>
-                            <DataTableColumnHeader>
-                                <Checkbox
-                                    checked={table.getIsAllRowsSelected()}
-                                    onChange={() => table.toggleAllRowsSelected()}
-                                    disabled={!hasVisibleRows}
-                                />
-                            </DataTableColumnHeader>
                             {headerGroup.headers.map((header) => (
                                 <DataTableColumnHeader
                                     key={header.id}
@@ -153,12 +170,6 @@ export const BacktestsTable = ({ backtests, models }: Props) => {
                     {hasVisibleRows ? table.getRowModel().rows
                         .map((row) => (
                             <DataTableRow selected={row.getIsSelected()} key={row.id}>
-                                <DataTableCell>
-                                    <Checkbox
-                                        checked={row.getIsSelected()}
-                                        onChange={() => row.toggleSelected()}
-                                    />
-                                </DataTableCell>
                                 {row.getVisibleCells().map((cell) => (
                                     <DataTableCell key={cell.id}>
                                         {flexRender(
@@ -179,7 +190,7 @@ export const BacktestsTable = ({ backtests, models }: Props) => {
 
                 <DataTableFoot>
                     <DataTableRow>
-                        <DataTableCell colSpan={String(table.getAllColumns().length + 1)}>
+                        <DataTableCell colSpan={String(table.getAllColumns().length)}>
                             <Pagination
                                 page={table.getState().pagination.pageIndex + 1}
                                 pageSize={table.getState().pagination.pageSize}
