@@ -1,8 +1,9 @@
-import cx from 'classnames'
 import React from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useMatches } from 'react-router-dom'
 import { Sidebar } from '../sidebar'
 import css from './Layout.module.css'
+import { RouteHandle } from '../../App'
+import cx from 'classnames'
 
 export const ID_MAIN_LAYOUT = 'main-layout'
 interface BaseLayoutProps {
@@ -22,15 +23,17 @@ export const BaseLayout = ({ children, sidebar }: BaseLayoutProps) => {
 export const SidebarLayout = ({
     children,
     hideSidebar,
+    collapseSidebar = false,
 }: {
     children: React.ReactNode
     hideSidebar?: boolean
+    collapseSidebar?: boolean
 }) => {
     return (
         <BaseLayout
             sidebar={
                 <Sidebar
-                    hideSidebar={hideSidebar}
+                    hideSidebar={collapseSidebar || hideSidebar}
                     className={cx(css.sidebar, { [css.hide]: hideSidebar })}
                 />
             }
@@ -41,8 +44,11 @@ export const SidebarLayout = ({
 }
 
 export const Layout = () => {
+    const collapseSidebar = useMatches().some(
+        (match) => (match.handle as RouteHandle)?.collapseSidebar
+    )
     return (
-        <SidebarLayout>
+        <SidebarLayout collapseSidebar={collapseSidebar}>
             <Outlet />
         </SidebarLayout>
     )

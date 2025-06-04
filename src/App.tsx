@@ -25,9 +25,12 @@ import { ChapValidator } from './components/ChapValidator'
 import { NewEvaluationPage } from './pages/NewEvaluationPage'
 import { JobsPage } from './pages/JobsPage'
 import { EvaluationComparePage } from './pages/EvaluationCompare'
+import { GetStartedPage } from './pages/GetStartedPage'
 
 export type RouteHandle = {
     fullWidth?: boolean
+    /* whether to automatically collapse the sidebar when route is active*/
+    collapseSidebar?: boolean
 }
 
 const router = createHashRouter([
@@ -70,6 +73,9 @@ const router = createHashRouter([
                             {
                                 path: 'new',
                                 element: <NewEvaluationPage />,
+                                handle: {
+                                    collapseSidebar: true,
+                                } satisfies RouteHandle,
                             },
                         ],
                     },
@@ -110,6 +116,13 @@ const router = createHashRouter([
                     },
                 ],
             },
+            {
+                path: '/get-started',
+                handle: {
+                    collapseSidebar: true,
+                } satisfies RouteHandle,
+                element: <GetStartedPage />,
+            }
         ],
     },
 ])
