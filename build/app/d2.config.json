@@ -7,7 +7,7 @@
     "F_CHAP_MODELING_APP"
   ],
   "name": "modeling-app",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "",
   "entryPoints": {
     "app": "index.html"
