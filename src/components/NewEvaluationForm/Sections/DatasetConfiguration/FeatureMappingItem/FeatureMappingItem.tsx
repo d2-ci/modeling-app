@@ -1,18 +1,18 @@
 import React from 'react'
+import { z } from 'zod'
 import { FeatureType } from '@dhis2-chap/chap-lib'
 import SearchSelectField from '../../../../../features/search-dataitem/SearchSelectField'
 import styles from './FeatureMappingItem.module.css'
+import { dataItemSchema, dimensionItemTypeSchema } from '../../../hooks/useFormController'
 
 type Props = {
     feature: FeatureType
-    onMapping: (featureName: string, dataItemId: string, dataItemDisplayName: string) => void
-    existingMapping?: {
-        id: string
-        displayName: string
-    }
+    onMapping: (featureName: string, dataItemId: string, dataItemDisplayName: string, dimensionItemType: z.infer<typeof dimensionItemTypeSchema>) => void
+    existingMapping?: z.infer<typeof dataItemSchema>
+    onResetField: () => void
 }
 
-export const FeatureMappingItem = ({ feature, onMapping, existingMapping }: Props) => {
+export const FeatureMappingItem = ({ feature, onMapping, existingMapping, onResetField }: Props) => {
     const createFeature = (feature: FeatureType) => ({
         id: feature.name || feature.displayName,
         name: feature.displayName,
@@ -29,14 +29,16 @@ export const FeatureMappingItem = ({ feature, onMapping, existingMapping }: Prop
         <div className={styles.mappingItem}>
             <SearchSelectField
                 feature={createFeature(feature)}
-                onChangeSearchSelectField={(_, dataItemId, dataItemDisplayName) => {
+                onChangeSearchSelectField={(_, dataItemId, dataItemDisplayName, dimensionItemType) => {
                     onMapping(
                         feature.name || feature.displayName,
                         dataItemId,
-                        dataItemDisplayName
+                        dataItemDisplayName,
+                        dimensionItemType
                     )
                 }}
                 defaultValue={existingMapping}
+                onResetField={onResetField}
             />
             {shouldShowDescription(feature) && (
                 <p className={styles.featureDescription}>
