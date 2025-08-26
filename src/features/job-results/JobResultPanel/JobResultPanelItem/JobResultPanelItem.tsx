@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { ConditionalTooltip } from '@dhis2-chap/chap-lib'
+import { ConditionalTooltip } from '@dhis2-chap/ui'
 import i18n from '@dhis2/d2-i18n'
 import styles from './JobResultPanelItem.module.css'
 import {
@@ -177,16 +177,16 @@ const JobResultPanelItem = ({
                                     {['SUCCESS', 'FAILURE'].includes(
                                         jobResult.status
                                     ) && (
-                                        <MenuItem
-                                            label="Delete"
-                                            icon={<IconDelete24 />}
-                                            destructive
-                                            onClick={() => {
-                                                setShowMenu(false)
-                                                onClickRemove(jobResult)
-                                            }}
-                                        />
-                                    )}
+                                            <MenuItem
+                                                label="Delete"
+                                                icon={<IconDelete24 />}
+                                                destructive
+                                                onClick={() => {
+                                                    setShowMenu(false)
+                                                    onClickRemove(jobResult)
+                                                }}
+                                            />
+                                        )}
                                 </Menu>
                             </div>
                         </Popper>

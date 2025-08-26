@@ -1,4 +1,4 @@
-import { ApiError, BackTestRead, CrudService } from "@dhis2-chap/chap-lib";
+import { ApiError, BackTestRead, CrudService } from "@dhis2-chap/ui";
 import { useAlert } from "@dhis2/app-runtime";
 import i18n from "@dhis2/d2-i18n";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ export const useRenameEvaluation = ({ onSuccess, onError }: Props = {}) => {
         mutate: renameEvaluation,
         isLoading,
         error,
-    } = useMutation<BackTestRead, ApiError, Variables, unknown>( 
+    } = useMutation<BackTestRead, ApiError, Variables, unknown>(
         ({ id, name }: Variables) => CrudService.updateBacktestCrudBacktestsBacktestIdPatch(id, { name }),
         {
             onSuccess: (data: BackTestRead, variables: Variables) => {
@@ -36,7 +36,7 @@ export const useRenameEvaluation = ({ onSuccess, onError }: Props = {}) => {
                 );
                 onSuccess?.();
             },
-            onError: (error) => { 
+            onError: (error) => {
                 showErrorAlert();
                 console.log('There was an error renaming the evaluation', error);
                 onError?.();

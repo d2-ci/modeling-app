@@ -6,7 +6,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import styles from './SelectDataLine.module.css'
 import { DatasetLayer } from '../../../interfaces/DataSetLayer'
-import { AnalyticsService, DataSource } from '@dhis2-chap/chap-lib'
+import { AnalyticsService, DataSource } from '@dhis2-chap/ui'
 import SearchSelectField from '../../../../search-dataitem/SearchSelectField'
 import { features } from '../NewDatasetForm'
 
@@ -52,7 +52,7 @@ const SelectDataLine = ({
             newDataSetLayer[index]['dataSource'] = ''
         }
 
-        ;(newDataSetLayer[index] as any)[type] = e.selected
+        ; (newDataSetLayer[index] as any)[type] = e.selected
         setDataLayers(newDataSetLayer)
     }
 
@@ -152,35 +152,34 @@ const SelectDataLine = ({
                             <div className={styles.selectField}>
                                 {(dataLayer.origin === 'CHAP' ||
                                     dataLayer.origin === '') && (
-                                    <SingleSelectField
-                                        disabled={dataLayer.origin === ''}
-                                        label="Data Element"
-                                        onChange={(e) =>
-                                            onChangeClickSelectField(
-                                                e,
-                                                'dataSource',
-                                                index
-                                            )
-                                        }
-                                        selected={dataLayer.dataSource}
-                                    >
-                                        {chapSources.map(
-                                            (de: DataSource) =>
-                                                //if feature is the same type as the Feature selected
-                                                de.supportedFeatures.includes(
-                                                    dataLayer.feature
-                                                ) && (
-                                                    <SingleSelectOption
-                                                        key={de.name}
-                                                        label={`${de.dataset.toUpperCase()} - ${
-                                                            de.displayName
-                                                        }`}
-                                                        value={de.dataset}
-                                                    />
+                                        <SingleSelectField
+                                            disabled={dataLayer.origin === ''}
+                                            label="Data Element"
+                                            onChange={(e) =>
+                                                onChangeClickSelectField(
+                                                    e,
+                                                    'dataSource',
+                                                    index
                                                 )
-                                        )}
-                                    </SingleSelectField>
-                                )}
+                                            }
+                                            selected={dataLayer.dataSource}
+                                        >
+                                            {chapSources.map(
+                                                (de: DataSource) =>
+                                                    //if feature is the same type as the Feature selected
+                                                    de.supportedFeatures.includes(
+                                                        dataLayer.feature
+                                                    ) && (
+                                                        <SingleSelectOption
+                                                            key={de.name}
+                                                            label={`${de.dataset.toUpperCase()} - ${de.displayName
+                                                                }`}
+                                                            value={de.dataset}
+                                                        />
+                                                    )
+                                            )}
+                                        </SingleSelectField>
+                                    )}
                                 {dataLayer.origin === 'dataItem' && (
                                     <SearchSelectField
                                         feature={{
@@ -190,7 +189,7 @@ const SelectDataLine = ({
                                             )[0]?.name,
                                             id: dataLayer.feature,
                                             description: '',
-                                            displayName:features.filter(
+                                            displayName: features.filter(
                                                 (f) =>
                                                     f.id === dataLayer.feature
                                             )[0]?.name || ''

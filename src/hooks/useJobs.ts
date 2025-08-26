@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { JobDescription, JobsService, ApiError } from "@dhis2-chap/chap-lib";
+import { JobDescription, JobsService, ApiError } from "@dhis2-chap/ui";
 
 export const JOB_STATUSES = {
     SUCCESS: 'SUCCESS',
@@ -31,7 +31,7 @@ export const useJobs = () => {
         cacheTime: 5 * 60 * 1000,
         retry: 0,
     });
-    
+
     const activeJobIds = useMemo(() => new Set(
         jobs
             ?.filter(job => job.status === JOB_STATUSES.PENDING || job.status === JOB_STATUSES.STARTED)
@@ -53,7 +53,7 @@ export const useJobs = () => {
     });
 
     useEffect(() => {
-        if (!activeJobsData?.length ) {
+        if (!activeJobsData?.length) {
             return;
         }
         let statusChanged = false;
@@ -62,7 +62,7 @@ export const useJobs = () => {
             return oldJobs?.map(job => {
                 if (activeJobIds.has(job.id)) {
                     const pulledJob = activeJobsData.find(activeJob => activeJob.id === job.id);
-                    
+
                     // check if status has changed and if so, return the pulled job
                     if (pulledJob && pulledJob.status !== job.status) {
                         statusChanged = true;

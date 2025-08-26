@@ -1,33 +1,33 @@
 import React, { useEffect, useState } from 'react'
-import { CrudService } from '@dhis2-chap/chap-lib';
+import { CrudService } from '@dhis2-chap/ui';
 import { getPeriodNameFromId } from '../utils/Time';
 import { CircularLoader, Card } from '@dhis2/ui';
 import styles from './DatasetDetails.module.css'
 
 interface DatasetDetailsProps {
-    datasetId : number | undefined
+    datasetId: number | undefined
 }
 
-const DatasetDetails = ({ datasetId } : DatasetDetailsProps ) => {
+const DatasetDetails = ({ datasetId }: DatasetDetailsProps) => {
     const [datasetSummary, setDatasetSummary] = useState<any>(null)
     const [error, setError] = useState<string>("")
     const [loading, setLoading] = useState<boolean>(true)
 
-    const getDatasetSummary = (dataset : any) => {
-        const periods = dataset.observations.map((obs : any) => obs.period)
+    const getDatasetSummary = (dataset: any) => {
+        const periods = dataset.observations.map((obs: any) => obs.period)
         const uniquePeriods = Array.from(new Set(periods)).sort() // ensures ascending order
-        
+
         const startPeriod = uniquePeriods[0]
         const endPeriod = uniquePeriods[uniquePeriods.length - 1]
 
         const uniqueOrgUnits = Array.from(new Set(periods))
         const orgUnitCount = uniqueOrgUnits.length
-        
+
         const covariates = Array.from(
             new Set(
                 dataset.observations
-                    .map((obs : any) => obs.featureName)
-                    .filter((name : string) => name !== "disease_cases") // Exclude target feature
+                    .map((obs: any) => obs.featureName)
+                    .filter((name: string) => name !== "disease_cases") // Exclude target feature
             )
         )
 

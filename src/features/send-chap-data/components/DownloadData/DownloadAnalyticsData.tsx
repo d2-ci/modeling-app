@@ -9,7 +9,7 @@ import {
 } from '../../../orgunit-selector/interfaces/orgUnit'
 import { Period } from '../../../timeperiod-selector/interfaces/Period'
 import { DatasetLayer } from '../../../new-dataset/interfaces/DataSetLayer'
-import { ObservationBase } from '@dhis2-chap/chap-lib'
+import { ObservationBase } from '@dhis2-chap/ui'
 
 interface DownloadAnalyticsDataProps {
     selectedPeriodItems: Period[]
@@ -138,7 +138,7 @@ const DownloadAnalyticsData = ({
                     title: 'OrgUnits request failed',
                 })
             }
-            
+
             setErrorMessages(errorMessages)
             setStartDownload((prev) => ({ ...prev, startDownload: false }))
         }

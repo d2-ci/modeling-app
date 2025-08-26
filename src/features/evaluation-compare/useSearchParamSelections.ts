@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
-import { BackTestRead } from '@dhis2-chap/chap-lib'
+import { BackTestRead } from '@dhis2-chap/ui'
 import { useBacktests } from '../../hooks/useBacktests'
 
 const evaluationParamsSchema = z.object({
@@ -46,18 +46,18 @@ function functionalUpdate<TInput, TOutput = TInput>(
 
 const createSearchParamsListUpdater =
     (key: string, valueOrUpdate: Updater<string[] | undefined>) =>
-    (prev: URLSearchParams) => {
-        const updatedParams = new URLSearchParams(prev)
+        (prev: URLSearchParams) => {
+            const updatedParams = new URLSearchParams(prev)
 
-        const newItems = functionalUpdate(valueOrUpdate, prev.getAll(key))
+            const newItems = functionalUpdate(valueOrUpdate, prev.getAll(key))
 
-        updatedParams.delete(key)
-        newItems?.forEach((value) => {
-            updatedParams.append(key, value)
-        })
+            updatedParams.delete(key)
+            newItems?.forEach((value) => {
+                updatedParams.append(key, value)
+            })
 
-        return updatedParams
-    }
+            return updatedParams
+        }
 
 export const useSelectedEvaluations = () => {
     const [searchParams, setSearchParams] = useSearchParams()

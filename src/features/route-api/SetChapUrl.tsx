@@ -1,6 +1,6 @@
 import { useConfig } from '@dhis2/app-runtime'
 import React, { useEffect, useState } from 'react'
-import { ApiError, enableQueue, getQueue, OpenAPI } from '@dhis2-chap/chap-lib'
+import { ApiError, enableQueue, getQueue, OpenAPI } from '@dhis2-chap/ui'
 import { CircularLoader } from '@dhis2/ui'
 import { useQueryClient } from '@tanstack/react-query'
 

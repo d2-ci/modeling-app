@@ -1,36 +1,36 @@
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import i18n from '@dhis2/d2-i18n'
-import { ModelSpecRead } from '@dhis2-chap/chap-lib'
+import { ModelSpecRead } from '@dhis2-chap/ui'
 import { EvaluationFormValues, CovariateMapping } from '../../hooks/useFormController'
 
 export const useDatasetValidation = () => {
   const queryClient = useQueryClient()
   const methods = useFormContext<EvaluationFormValues>()
-  
+
   const modelId = useWatch({ control: methods.control, name: 'modelId' })
   const covariateMappings = useWatch({ control: methods.control, name: 'covariateMappings' })
   const targetMapping = useWatch({ control: methods.control, name: 'targetMapping' })
 
   const getSelectedModel = (modelId: string): ModelSpecRead | undefined => {
     if (!modelId) return undefined
-    
+
     return queryClient.getQueryData<ModelSpecRead[]>(['models'])?.find((model) => model.id === Number(modelId))
   }
 
   const validateTargetMapping = (modelId: string, targetMapping?: CovariateMapping): string | null => {
     const model = getSelectedModel(modelId)
     if (!model || !model.target) return null
-    
+
     if (!targetMapping) {
-      return i18n.t('Target "{{targetName}}" must be mapped to a data item', { 
-        targetName: model.target.displayName || model.target.name 
+      return i18n.t('Target "{{targetName}}" must be mapped to a data item', {
+        targetName: model.target.displayName || model.target.name
       })
     }
 
     if (targetMapping.covariateName !== model.target.name || !targetMapping.dataItemId) {
-      return i18n.t('Target "{{targetName}}" must be mapped to a data item', { 
-        targetName: model.target.displayName || model.target.name 
+      return i18n.t('Target "{{targetName}}" must be mapped to a data item', {
+        targetName: model.target.displayName || model.target.name
       })
     }
 
@@ -40,14 +40,14 @@ export const useDatasetValidation = () => {
   const validateCovariateMapping = (modelId: string, covariateMappings?: CovariateMapping[]): Record<string, string> => {
     const model = getSelectedModel(modelId)
     const errors: Record<string, string> = {}
-    
+
     if (!model || !model.covariates) return errors
 
     model.covariates.forEach((covariate) => {
       if (!covariate.name) return // Skip covariates without a name
-      
+
       const mapping = covariateMappings?.find(m => m.covariateName === covariate.name)
-      
+
       if (!mapping || !mapping.dataItemId) {
         errors[covariate.name] = i18n.t('Covariate "{{covariateName}}" must be mapped to a data item', {
           covariateName: covariate.displayName || covariate.name
@@ -62,15 +62,15 @@ export const useDatasetValidation = () => {
     const model = getSelectedModel(modelId)
     if (!model) return { missingCovariates: [], missingTarget: false }
 
-    const missingCovariates = model.covariates?.filter(covariate => 
-      !covariateMappings?.some(mapping => 
+    const missingCovariates = model.covariates?.filter(covariate =>
+      !covariateMappings?.some(mapping =>
         mapping.covariateName === covariate.name && mapping.dataItemId
       )
     ) || []
 
-    const missingTarget = !targetMapping || 
+    const missingTarget = !targetMapping ||
       !model.target ||
-      targetMapping.covariateName !== model.target.name || 
+      targetMapping.covariateName !== model.target.name ||
       !targetMapping.dataItemId
 
     return { missingCovariates, missingTarget }
@@ -101,8 +101,8 @@ export const useDatasetValidation = () => {
     }
 
     const { missingCovariates, missingTarget } = getMissingMappings(
-      modelId, 
-      covariateMappings, 
+      modelId,
+      covariateMappings,
       targetMapping
     )
 

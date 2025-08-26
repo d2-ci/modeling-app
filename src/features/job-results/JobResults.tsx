@@ -10,7 +10,7 @@ import {
     JobDescription,
     JobsService,
     NewClass,
-} from '@dhis2-chap/chap-lib'
+} from '@dhis2-chap/ui'
 import { JobResult } from './interfaces/JobResult'
 import FetchError from './FetchError/FetchError'
 import LoadingJobResult from './LoadingJobResult/LoadingJobResult'

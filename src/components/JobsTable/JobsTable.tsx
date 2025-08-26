@@ -23,7 +23,7 @@ import {
 import { intervalToDuration, formatDuration, format } from 'date-fns';
 import {
     JobDescription,
-} from '@dhis2-chap/chap-lib';
+} from '@dhis2-chap/ui';
 import styles from './JobsTable.module.css';
 import { JobsTableFilters } from './JobsTableFilters';
 import { StatusCell } from './TableCells/StatusCell';

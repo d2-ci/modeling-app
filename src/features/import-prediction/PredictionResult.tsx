@@ -3,7 +3,7 @@ import i18n from '@dhis2/d2-i18n'
 import {
     FullPredictionResponseExtended,
     PredictionRead,
-} from '@dhis2-chap/chap-lib'
+} from '@dhis2-chap/ui'
 import styles from './styles/PredictionResult.module.css'
 import useOrgUnits from '../../hooks/useOrgUnits'
 import { Button, TabBar, IconArrowRight24, Tab } from '@dhis2/ui'
@@ -16,13 +16,13 @@ import {
     FullPredictionResponse,
     PredictionResponse,
     PredictionTable,
-} from '@dhis2-chap/chap-lib'
+} from '@dhis2-chap/ui'
 
-import { UncertaintyAreaChart } from '@dhis2-chap/chap-lib'
+import { UncertaintyAreaChart } from '@dhis2-chap/ui'
 import useFindDataItem from '../../hooks/useDataItem'
 
 interface PredictionResultProps {
-    prediction_unprocessed: PredictionRead 
+    prediction_unprocessed: PredictionRead
 }
 
 const PredictionResult = ({
@@ -70,8 +70,8 @@ const PredictionResult = ({
 
         return Math.round(
             sortedArr[lowerIndex] +
-                (sortedArr[upperIndex] - sortedArr[lowerIndex]) *
-                    (index - lowerIndex)
+            (sortedArr[upperIndex] - sortedArr[lowerIndex]) *
+            (index - lowerIndex)
         )
     }
 

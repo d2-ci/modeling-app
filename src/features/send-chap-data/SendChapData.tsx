@@ -8,7 +8,7 @@ import {
     MakePredictionRequest,
     ModelSpecRead,
     ObservationBase,
-} from '@dhis2-chap/chap-lib'
+} from '@dhis2-chap/ui'
 import { ErrorResponse } from './interfaces/ErrorResponse'
 import saveAs from 'file-saver'
 import { IconError24 } from '@dhis2/ui'
@@ -379,9 +379,9 @@ export const SendChapData = ({
         saveAs(
             fileToSave,
             onSendAction.replaceAll('-', '_') +
-                '_chap_request_data_' +
-                today.toJSON() +
-                '.json'
+            '_chap_request_data_' +
+            today.toJSON() +
+            '.json'
         )
     }
 

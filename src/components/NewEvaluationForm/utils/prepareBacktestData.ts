@@ -4,7 +4,7 @@ import { EvaluationFormValues } from "../hooks/useFormController"
 import {
     ModelSpecRead,
     ObservationBase,
-} from "@dhis2-chap/chap-lib"
+} from "@dhis2-chap/ui"
 import { useDataEngine } from "@dhis2/app-runtime"
 import { PERIOD_TYPES } from "../Sections/PeriodSelector"
 import { toDHIS2PeriodData } from "../../../features/timeperiod-selector/utils/timePeriodUtils"

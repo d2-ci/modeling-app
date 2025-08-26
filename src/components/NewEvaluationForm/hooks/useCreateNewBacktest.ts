@@ -8,7 +8,7 @@ import {
     MakeBacktestWithDataRequest,
     ApiError,
     ImportSummaryResponse,
-} from "@dhis2-chap/chap-lib"
+} from "@dhis2-chap/ui"
 import { useDataEngine } from "@dhis2/app-runtime"
 import { PERIOD_TYPES } from "../Sections/PeriodSelector"
 import { useNavigate } from "react-router-dom"

@@ -1,4 +1,4 @@
-import { ApiError, CrudService, ModelSpecRead } from "@dhis2-chap/chap-lib";
+import { ApiError, CrudService, ModelSpecRead } from "@dhis2-chap/ui";
 import { useQuery } from "@tanstack/react-query";
 
 export const useModels = () => {
@@ -9,7 +9,7 @@ export const useModels = () => {
         cacheTime: Infinity,
         retry: 0,
     });
-    
+
     return {
         models: data,
         error,

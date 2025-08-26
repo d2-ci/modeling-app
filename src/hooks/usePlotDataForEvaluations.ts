@@ -11,7 +11,7 @@ import {
     getSplitPeriod,
     HighChartsData,
     joinRealAndPredictedData,
-} from '@dhis2-chap/chap-lib'
+} from '@dhis2-chap/ui'
 import { useCallback, useMemo } from 'react'
 import {
     Query,
@@ -140,41 +140,41 @@ export const usePlotDataForEvaluations = (
     const evaluationQueries = useQueries({
         queries: evaluations.map(
             (evaluation) =>
-                ({
-                    queryKey: getQueryKey(evaluation.id),
-                    queryFn: async () => {
-                        const evaluationEntries =
-                            AnalyticsService.getEvaluationEntriesAnalyticsEvaluationEntryGet(
-                                evaluation.id,
-                                quantiles,
-                                splitPeriod,
-                                orgUnits
-                            )
-                        const actualCases =
-                            AnalyticsService.getActualCasesAnalyticsActualCasesBacktestIdGet(
-                                evaluation.id,
-                                orgUnits
-                            )
-                        const data = await Promise.all([
-                            evaluationEntries,
-                            actualCases,
-                        ])
-                        return {
-                            data,
-                            evaluation: evaluation,
-                        }
-                    },
-                    initialData: getInitialData(evaluation.id),
-                    select: select,
-                    enabled:
-                        !!evaluation &&
-                        (!!orgUnits ? orgUnits.length > 0 : true),
-                    staleTime: 60 * 1000,
-                } satisfies UseQueryOptions<
-                    PlotDataRequestResult,
-                    Error | ApiError,
-                    PlotDataResult | undefined
-                >)
+            ({
+                queryKey: getQueryKey(evaluation.id),
+                queryFn: async () => {
+                    const evaluationEntries =
+                        AnalyticsService.getEvaluationEntriesAnalyticsEvaluationEntryGet(
+                            evaluation.id,
+                            quantiles,
+                            splitPeriod,
+                            orgUnits
+                        )
+                    const actualCases =
+                        AnalyticsService.getActualCasesAnalyticsActualCasesBacktestIdGet(
+                            evaluation.id,
+                            orgUnits
+                        )
+                    const data = await Promise.all([
+                        evaluationEntries,
+                        actualCases,
+                    ])
+                    return {
+                        data,
+                        evaluation: evaluation,
+                    }
+                },
+                initialData: getInitialData(evaluation.id),
+                select: select,
+                enabled:
+                    !!evaluation &&
+                    (!!orgUnits ? orgUnits.length > 0 : true),
+                staleTime: 60 * 1000,
+            } satisfies UseQueryOptions<
+                PlotDataRequestResult,
+                Error | ApiError,
+                PlotDataResult | undefined
+            >)
         ),
     })
 

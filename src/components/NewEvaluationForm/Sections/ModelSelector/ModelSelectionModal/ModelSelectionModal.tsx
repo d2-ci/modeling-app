@@ -15,7 +15,7 @@ import {
     getSortedRowModel,
     createColumnHelper,
 } from '@tanstack/react-table'
-import { ModelSpecRead, AuthorAssessedStatus } from '@dhis2-chap/chap-lib'
+import { ModelSpecRead, AuthorAssessedStatus } from '@dhis2-chap/ui'
 import { ModelCard } from '../ModelCard'
 import { ModelFilters } from './ModelFilters'
 import styles from './ModelSelectionModal.module.css'
