@@ -25,6 +25,7 @@ import styles from './PredictionsTable.module.css';
 import { PredictionsTableFilters } from './PredictionsTableFilters';
 import { RunningJobsIndicator } from '../BacktestsTable/RunningJobsIndicator';
 import { JOB_TYPES } from '../../hooks/useJobs';
+import { PredictionActionsMenu } from './PredictionActionsMenu';
 
 const columnHelper = createColumnHelper<NewClass>();
 
@@ -54,6 +55,16 @@ const columns = [
     columnHelper.accessor('nPeriods', {
         header: () => i18n.t('Periods'),
         cell: info => info.getValue(),
+    }),
+    columnHelper.display({
+        id: 'actions',
+        header: i18n.t('Actions'),
+        cell: info => (
+            <PredictionActionsMenu
+                id={info.row.original.id}
+                name={info.row.original.name}
+            />
+        ),
     }),
 ];
 
@@ -113,10 +124,7 @@ export const PredictionsTable = ({ predictions, models }: Props) => {
                                 >
                                     {header.isPlaceholder
                                         ? null
-                                        : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext(),
-                                            )}
+                                        : flexRender(header.column.columnDef.header, header.getContext())}
                                 </DataTableColumnHeader>
                             ))}
                         </DataTableRow>
