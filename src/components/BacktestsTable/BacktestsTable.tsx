@@ -12,7 +12,6 @@ import {
     DataTableFoot,
     Pagination,
     Tooltip,
-    IconInfo16,
 } from '@dhis2/ui';
 import i18n from '@dhis2/d2-i18n';
 import {
@@ -25,13 +24,15 @@ import {
     getPaginationRowModel,
     Column,
 } from '@tanstack/react-table';
-import { BackTestRead, ModelSpecRead } from '@dhis2-chap/ui';
+import { BackTestRead, ModelSpecRead, Pill } from '@dhis2-chap/ui';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './BacktestsTable.module.css';
 import { BacktestActionsMenu } from './BacktestActionsMenu';
 import { BacktestsTableFilters } from './BacktestsTableFilters';
 import { BatchActions } from './BatchActions';
-import { RunningJobsIndicator } from './RunningJobsIndicator';
+import { RunningJobsIndicator } from '../RunningJobsIndicator';
+import { JOB_TYPES } from '../../hooks/useJobs';
+import { useBacktestsTableFilters } from './hooks/useBacktestsTableFilters';
 
 const columnHelper = createColumnHelper<BackTestRead>();
 
@@ -62,7 +63,7 @@ const columns = [
         cell: (info) => {
             return (
                 <Link
-                    to={`/evaluate/compare?baseEvaluation=${info.row.original.id}`}
+                    to={`/evaluate/${info.row.original.id}`}
                 >
                     {info.getValue()}
                 </Link>
@@ -73,30 +74,50 @@ const columns = [
         header: i18n.t('Created'),
         cell: info => info.getValue() ? new Date(info.getValue()!).toLocaleString() : undefined,
     }),
-    columnHelper.accessor('modelId', {
+    columnHelper.accessor('configuredModel.id', {
+        id: 'configuredModel.id',
         header: i18n.t('Model'),
-        filterFn: 'equals',
+        filterFn: (row, columnId, filterValue) => {
+            const configuredModelId = row.getValue(columnId) as string;
+            return configuredModelId.toString() === filterValue.toString();
+        },
         cell: (info) => {
-            const modelId = info.getValue();
+            const configuredModelId = info.getValue();
             const models = (info.table.options.meta as { models: ModelSpecRead[] })?.models;
-            const model = models?.find((model: ModelSpecRead) => model.name === modelId);
-            return model?.displayName || modelId;
+            const model = models?.find((model: ModelSpecRead) => model.id === configuredModelId);
+            return model?.displayName || configuredModelId;
         },
     }),
-    columnHelper.accessor('aggregateMetrics.crps_norm_mean', {
-        header: () => (
-            <div className={styles.headerWithTooltip}>
-                <span>{i18n.t('CRPS (Norm)')}</span>
-                <Tooltip content={i18n.t('Normalized CRPS (Continuous Ranked Probability Score) shows how close a model\'s predicted range of outcomes is to the actual result on a 0 - 1 scale. Lower values indicate better probabilistic accuracy')}>
-                    <div className={styles.iconContainer}>
-                        <IconInfo16 />
-                    </div>
-                </Tooltip>
-            </div>
-        ),
+    columnHelper.accessor(row => row.orgUnits?.length ?? 0, {
+        id: 'locationsCount',
+        header: i18n.t('Locations'),
         cell: (info) => {
-            const crps = info.getValue();
-            return crps ? crps.toFixed(2) : undefined;
+            const count = info.getValue();
+
+            if (count === 0) {
+                return count;
+            }
+
+            const tooltipContent = i18n.t('Evaluated on {{count}} locations', { count });
+
+            return (
+                <div className={styles.locationsCell}>
+                    <Tooltip content={tooltipContent}>
+                        {({ onMouseOver, onMouseOut, ref }) => (
+                            <span
+                                ref={ref}
+                                className={styles.infoIcon}
+                                onMouseEnter={onMouseOver}
+                                onMouseLeave={onMouseOut}
+                            >
+                                <Pill>
+                                    {count}
+                                </Pill>
+                            </span>
+                        )}
+                    </Tooltip>
+                </div>
+            );
         },
     }),
     columnHelper.display({
@@ -122,11 +143,17 @@ type Props = {
 
 export const BacktestsTable = ({ backtests, models }: Props) => {
     const navigate = useNavigate();
+    const { modelId, search } = useBacktestsTableFilters();
+
     const table = useReactTable({
         data: backtests || [],
         columns,
-        initialState: {
+        state: {
             sorting: [{ id: 'created', desc: true }],
+            columnFilters: [
+                ...(modelId ? [{ id: 'configuredModel.id', value: modelId }] : []),
+                ...(search ? [{ id: 'name', value: search }] : []),
+            ],
         },
         meta: {
             models,
@@ -149,13 +176,12 @@ export const BacktestsTable = ({ backtests, models }: Props) => {
                 <div className={styles.buttonContainer}>
                     <div className={styles.leftSection}>
                         <BacktestsTableFilters
-                            table={table}
                             models={models}
                         />
                     </div>
 
                     <div className={styles.rightSection}>
-                        <RunningJobsIndicator />
+                        <RunningJobsIndicator jobType={JOB_TYPES.CREATE_BACKTEST_WITH_DATA} />
                         <Button
                             primary
                             icon={<IconAdd16 />}
@@ -186,10 +212,7 @@ export const BacktestsTable = ({ backtests, models }: Props) => {
                                 >
                                     {header.isPlaceholder
                                         ? null
-                                        : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext(),
-                                            )}
+                                        : flexRender(header.column.columnDef.header, header.getContext())}
                                 </DataTableColumnHeader>
                             ))}
                         </DataTableRow>

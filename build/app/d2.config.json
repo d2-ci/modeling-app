@@ -6,7 +6,7 @@
   "customAuthorities": [
     "F_CHAP_MODELING_APP"
   ],
-  "viteConfigExtensions": "./viteConfigExtensions.mjs",
+  "viteConfigExtensions": "./vite.config.mts",
   "name": "@dhis2-chap/modeling-app",
   "version": "2.2.4",
   "description": "",

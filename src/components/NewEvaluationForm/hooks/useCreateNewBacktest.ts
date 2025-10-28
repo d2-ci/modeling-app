@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import i18n from '@dhis2/d2-i18n';
-import { EvaluationFormValues } from './useFormController';
+import { ModelExecutionFormValues } from '../../ModelExecutionForm/hooks/useModelExecutionFormState';
 import {
     AnalyticsService,
     FeatureCollectionModel,
     MakeBacktestWithDataRequest,
     ApiError,
-    ImportSummaryResponse,
 } from '@dhis2-chap/ui';
 import { useDataEngine } from '@dhis2/app-runtime';
-import { PERIOD_TYPES } from '../Sections/PeriodSelector';
+import { PERIOD_TYPES } from '../../ModelExecutionForm/constants';
 import { useNavigate } from 'react-router-dom';
-import { validateClimateData } from '../utils/validateClimateData';
-import { prepareBacktestData } from '../utils/prepareBacktestData';
+import { validateClimateData } from '../../ModelExecutionForm/utils/validateClimateData';
+import { prepareBacktestData } from '../../ModelExecutionForm/utils/prepareBacktestData';
+import { ImportSummaryCorrected } from '../../ModelExecutionForm/types';
 
 const N_SPLITS = 10;
 const STRIDE = 1;
@@ -21,17 +21,6 @@ const STRIDE = 1;
 const N_PERIODS = {
     [PERIOD_TYPES.MONTH]: 3,
     [PERIOD_TYPES.WEEK]: 12,
-};
-
-// This is a workaround to get the correct type for the rejected field - the openapi spec is incorrect
-export type ImportSummaryCorrected = Omit<ImportSummaryResponse, 'rejected'> & {
-    hash?: string;
-    rejected: {
-        featureName: string;
-        orgUnit: string;
-        reason: string;
-        period: string[];
-    }[];
 };
 
 type Props = {
@@ -52,11 +41,11 @@ export const useCreateNewBacktest = ({
     const {
         mutate: validateAndDryRun,
         data: validationResult,
-        isLoading: isValidationLoading,
+        isPending: isValidationLoading,
         error: validationError,
         reset: resetValidation,
-    } = useMutation<ImportSummaryCorrected, ApiError, EvaluationFormValues>({
-        mutationFn: async (formData: EvaluationFormValues) => {
+    } = useMutation<ImportSummaryCorrected, ApiError, ModelExecutionFormValues>({
+        mutationFn: async (formData: ModelExecutionFormValues) => {
             const {
                 observations,
                 periods,
@@ -98,11 +87,11 @@ export const useCreateNewBacktest = ({
 
     const {
         mutate: createNewBacktest,
-        isLoading,
+        isPending,
         error,
-    } = useMutation<ImportSummaryCorrected, ApiError, EvaluationFormValues>({
-        mutationFn: async (formData: EvaluationFormValues) => {
-            const { model, observations, orgUnitResponse } = await prepareBacktestData(
+    } = useMutation<ImportSummaryCorrected, ApiError, ModelExecutionFormValues>({
+        mutationFn: async (formData: ModelExecutionFormValues) => {
+            const { model, observations, orgUnitResponse, dataSources } = await prepareBacktestData(
                 formData,
                 dataEngine,
                 queryClient,
@@ -127,6 +116,7 @@ export const useCreateNewBacktest = ({
                 name: formData.name,
                 geojson: filteredGeoJson,
                 providedData: observations,
+                dataSources,
                 dataToBeFetched: [],
                 modelId: model.name,
                 nPeriods: N_PERIODS[formData.periodType],
@@ -156,7 +146,7 @@ export const useCreateNewBacktest = ({
         createNewBacktest,
         validateAndDryRun,
         validationResult,
-        isSubmitting: isLoading,
+        isSubmitting: isPending,
         isValidationLoading,
         importSummary: validationResult,
         error: validationError || error,
