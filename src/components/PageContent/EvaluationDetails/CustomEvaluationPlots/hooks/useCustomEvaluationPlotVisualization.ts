@@ -1,18 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { ApiError, VisualizationService } from '@dhis2-chap/ui';
 
-type UseBacktestPlotVisualizationParams = {
+type UseCustomEvaluationPlotVisualizationParams = {
     evaluationId?: number;
     visualizationId?: string;
 };
 
-export const useBacktestPlotVisualization = ({
+export const useCustomEvaluationPlotVisualization = ({
     evaluationId,
     visualizationId,
-}: UseBacktestPlotVisualizationParams) => {
+}: UseCustomEvaluationPlotVisualizationParams) => {
     const { data, isLoading, isFetching, error } = useQuery<unknown, ApiError>({
         queryKey: [
-            'backtest-plot-visualization',
+            'custom-evaluation-plot-visualization',
             evaluationId,
             visualizationId,
         ],
@@ -28,6 +28,7 @@ export const useBacktestPlotVisualization = ({
         staleTime: 5 * 60 * 1000,
         cacheTime: 5 * 60 * 1000,
         retry: 0,
+        refetchOnWindowFocus: false,
     });
 
     return {

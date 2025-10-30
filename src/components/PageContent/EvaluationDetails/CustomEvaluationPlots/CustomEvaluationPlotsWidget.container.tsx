@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { CircularLoader, MenuItem, NoticeBox, SingleSelect } from '@dhis2/ui';
+import { CircularLoader, IconInfo16, MenuItem, NoticeBox, SingleSelect, Tooltip } from '@dhis2/ui';
 import i18n from '@dhis2/d2-i18n';
-import styles from './BacktestPlotWidget.module.css';
-import { BacktestPlotWidgetComponent } from './BacktestPlotWidget.component';
-import { useBacktestPlotTypes } from './hooks/useBacktestPlotTypes';
+import styles from './CustomEvaluationPlotsWidget.module.css';
+import { CustomEvaluationPlotsWidgetComponent } from './CustomEvaluationPlotsWidget.component';
+import { useCustomEvaluationPlotTypes } from './hooks/useCustomEvaluationPlotTypes';
 import { Widget } from '@dhis2-chap/ui';
 
 type Props = {
@@ -13,7 +13,19 @@ type Props = {
 const WidgetWrapper = ({ children, open, onOpen, onClose }: { children: React.ReactNode; open: boolean; onOpen: () => void; onClose: () => void }) => {
     return (
         <Widget
-            header={i18n.t('Backtest plot')}
+            header={(
+                <div className={styles.header}>
+                    <span>{i18n.t('Evaluation plots')}</span>
+                    <Tooltip
+                        content={i18n.t('Evaluation plots are configured system-wide and defined by system administrators / model developers. If you experience issues, please contact your system administrator.')}
+                        placement="top"
+                    >
+                        <span className={styles.tooltip}>
+                            <IconInfo16 />
+                        </span>
+                    </Tooltip>
+                </div>
+            )}
             open={open}
             onOpen={onOpen}
             onClose={onClose}
@@ -25,13 +37,13 @@ const WidgetWrapper = ({ children, open, onOpen, onClose }: { children: React.Re
     );
 };
 
-export const BacktestPlotWidget = ({ evaluationId }: Props) => {
+export const CustomEvaluationPlotsWidget = ({ evaluationId }: Props) => {
     const [open, setOpen] = useState(false);
     const {
-        backtestPlotTypes,
+        customEvaluationPlotTypes,
         isLoading: isTypesLoading,
         error: typesError,
-    } = useBacktestPlotTypes();
+    } = useCustomEvaluationPlotTypes();
 
     const [selectedVisualizationId, setVisualizationId] = useState<string | undefined>(undefined);
 
@@ -72,14 +84,14 @@ export const BacktestPlotWidget = ({ evaluationId }: Props) => {
                             placeholder={i18n.t('Select visualization')}
                             onChange={e => setVisualizationId(e.selected)}
                         >
-                            {(backtestPlotTypes ?? []).map(v => (
+                            {(customEvaluationPlotTypes ?? []).map(v => (
                                 <MenuItem key={v.id} value={v.id} label={v.displayName} />
                             ))}
                         </SingleSelect>
                     </div>
                 </div>
 
-                <BacktestPlotWidgetComponent
+                <CustomEvaluationPlotsWidgetComponent
                     evaluationId={evaluationId}
                     selectedVisualizationId={selectedVisualizationId}
                 />
