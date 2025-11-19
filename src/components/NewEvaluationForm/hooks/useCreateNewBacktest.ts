@@ -13,7 +13,7 @@ import { PERIOD_TYPES } from '../../ModelExecutionForm/constants';
 import { useNavigate } from 'react-router-dom';
 import { validateClimateData } from '../../ModelExecutionForm/utils/validateClimateData';
 import { prepareBacktestData } from '../../ModelExecutionForm/utils/prepareBacktestData';
-import { ImportSummaryCorrected } from '../../ModelExecutionForm/types';
+import { ImportSummaryCorrected, NoValidOrgUnitsError } from '../../ModelExecutionForm/types';
 
 const N_SPLITS = 10;
 const STRIDE = 1;
@@ -36,7 +36,6 @@ export const useCreateNewBacktest = ({
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const [summaryModalOpen, setSummaryModalOpen] = useState<boolean>(false);
-    const [hasNoValidOrgUnits, setHasNoValidOrgUnits] = useState<boolean>(false);
 
     // TODO - remove this once the validation is done in the backend
     const {
@@ -55,16 +54,8 @@ export const useCreateNewBacktest = ({
                 orgUnitsWithoutGeometry,
             } = await prepareBacktestData(formData, dataEngine, queryClient);
 
-            // Check if there are no valid org units
             if (orgUnitIds.length === 0) {
-                setHasNoValidOrgUnits(true);
-                return {
-                    id: null,
-                    importedCount: 0,
-                    hash,
-                    rejected: [],
-                    orgUnitsWithoutGeometry,
-                };
+                throw new NoValidOrgUnitsError();
             }
 
             const validation = validateClimateData(observations, formData, periods, orgUnitIds);
@@ -113,17 +104,10 @@ export const useCreateNewBacktest = ({
                 queryClient,
             );
 
-            // Check if there are no valid org units
             if (orgUnitIds.length === 0) {
-                setHasNoValidOrgUnits(true);
-                return {
-                    id: null,
-                    importedCount: 0,
-                    rejected: [],
-                };
+                throw new NoValidOrgUnitsError();
             }
 
-            // Filter to only include org units with geometry
             const orgUnitsWithGeometry = orgUnitResponse.geojson.organisationUnits.filter(ou => ou.geometry);
 
             const filteredGeoJson: FeatureCollectionModel = {
@@ -181,7 +165,5 @@ export const useCreateNewBacktest = ({
         error: validationError || error,
         summaryModalOpen,
         closeSummaryModal: () => setSummaryModalOpen(false),
-        hasNoValidOrgUnits,
-        dismissHasNoValidOrgUnits: () => setHasNoValidOrgUnits(false),
     };
 };
