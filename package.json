@@ -1,0 +1,60 @@
+{
+    "name": "@dhis2-chap/modeling-app",
+    "version": "3.1.2",
+    "description": "",
+    "license": "BSD-3-Clause",
+    "private": true,
+    "scripts": {
+        "build": "d2-app-scripts build",
+        "start": "d2-app-scripts start",
+        "deploy": "d2-app-scripts deploy",
+        "tsc:check": "tsc --noEmit",
+        "linter:check": "eslint . --config ../../eslint.config.mts"
+    },
+    "devDependencies": {
+        "@dhis2/cli-app-scripts": "12.8.0-alpha.3",
+        "@mdx-js/rollup": "^3.1.1",
+        "@types/highcharts": "^5.0.44",
+        "@types/mdx": "^2.0.13",
+        "remark-frontmatter": "^5.0.0",
+        "remark-mdx-frontmatter": "^5.2.0",
+        "remark-mdx-images": "^3.0.0",
+        "vite": "5.4.21"
+    },
+    "peerDependencies": {
+        "react": ">=18",
+        "react-dom": ">=18"
+    },
+    "dependencies": {
+        "@dhis2-chap/ui": "workspace:*",
+        "@dhis2/analytics": "^29.0.3",
+        "@dhis2/app-runtime": "3.14.6",
+        "@dhis2/d2-i18n": "1.2.0",
+        "@dhis2/multi-calendar-dates": "^2.1.2",
+        "@dhis2/ui": "^10.10.0",
+        "@hookform/resolvers": "^5.0.1",
+        "@mdx-js/react": "^3.1.1",
+        "@tanstack/react-query": "4",
+        "@tanstack/react-query-devtools": "4",
+        "@tanstack/react-table": "^8.21.3",
+        "classnames": "^2.5.1",
+        "date-fns": "^4.1.0",
+        "file-saver": "^2.0.5",
+        "highcharts": "11.4.8",
+        "highcharts-react-official": "^3.2.1",
+        "jszip": "^3.10.1",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "react-dropzone": "^14.3.5",
+        "react-hook-form": "^7.51.5",
+        "react-modern-drawer": "^1.4.0",
+        "react-range": "^1.10.0",
+        "react-router-dom": "^7.0.2",
+        "react-vega": "^8.0.0",
+        "styled-jsx": "^4.0.1",
+        "vega": "^6.1.2",
+        "vega-embed": "^7.0.2",
+        "vega-lite": "^6.3.0",
+        "zod": "^3.23.8"
+    }
+}
