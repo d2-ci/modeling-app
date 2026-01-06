@@ -1,0 +1,14 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    background-color: var(--colors-grey100, #f3f5f7);
+    border-radius: 8px;
+    margin: 24px 0;
+}
+
+.chartWrapper {
+    width: 100%;
+    max-width: 650px;
+}
