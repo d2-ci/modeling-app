@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import { MDXProvider as BaseMDXProvider } from '@mdx-js/react';
-import { DataVisualization, PredictionAnimation } from './widgets';
+import { DataVisualization, ModelOutputChart, PredictionAnimation } from './widgets';
 import { ImageLightbox } from './ImageLightbox';
 import styles from './MDXProvider.module.css';
 
@@ -42,7 +42,7 @@ const components = {
     ),
     hr: () => <hr className={styles.hr} />,
     a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-        <a className={styles.a} {...props} />
+        <a className={styles.a} target="_self" {...props} />
     ),
     strong: (props: React.HTMLAttributes<HTMLElement>) => (
         <strong className={styles.strong} {...props} />
@@ -51,6 +51,7 @@ const components = {
         <ImageLightbox {...props} />
     ),
     DataVisualization,
+    ModelOutputChart,
     PredictionAnimation,
 };
 
