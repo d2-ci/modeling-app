@@ -1,0 +1,45 @@
+.content {
+  display: flex;
+  gap: 1rem;
+  inline-size: 80vw;
+}
+
+.filterBar {
+  display: flex;
+  block-size: 60px;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 16px;
+  gap: 16px;
+}
+
+.filterContainer {
+  background-color: var(--colors-blue100);
+  padding: 0.5rem;
+  border-radius: 0.2rem;
+  inline-size: 400px
+}
+
+.modelGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 16px;
+    padding-block-start: 10px;
+    inline-size: 100%;
+    min-block-size: 200px;
+} 
+
+.modelModal {
+} 
+
+.noResults {
+  color: var(--colors-grey700);
+  font-size: 0.875rem;
+  text-align: center;
+  inline-size: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  block-size: 100%;
+}
